@@ -21,7 +21,6 @@ import {
   Home,
   MessageCircle,
   BookOpen,
-  Users,
   User as UserIcon,
   Heart,
   Brain,
@@ -32,6 +31,7 @@ import {
   Activity,
 } from "lucide-react";
 import { User, DashboardPage, ViewType, MoodData } from "../lib/types";
+import tips from "../lib/health-tips.json";
 import {
   BarChart,
   Bar,
@@ -71,6 +71,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [isLoadingMood, setIsLoadingMood] = useState(false);
+  const [currentTip, setCurrentTip] = useState("");
+  const [sessionSummary, setSessionSummary] = useState<any>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(false);
 
   const handleEdit = () => {
     setEditedName(currentUser?.name || "");
@@ -139,6 +142,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     console.log("Fetching mood data for user:", currentUser.uid);
     setIsLoadingMood(true);
+    setIsLoadingSession(true);
     try {
       const response = await fetch(
         `http://localhost:3000/user/${currentUser.uid}`
@@ -151,6 +155,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
         const latestSummary = userData.latestSummary?.summary_data;
         console.log("Latest summary:", latestSummary);
+
+        // Set session summary data
+        if (userData.latestSummary) {
+          setSessionSummary(userData.latestSummary);
+        }
 
         if (latestSummary && latestSummary.mood) {
           const moodDataObj = {
@@ -175,6 +184,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       console.error("Error fetching mood data:", error);
     } finally {
       setIsLoadingMood(false);
+      setIsLoadingSession(false);
     }
   };
 
@@ -183,6 +193,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
       fetchMoodData();
     }
   }, [currentUser?.uid]);
+  
+    useEffect(() => {
+      const updateTip = () => {
+        const now = Date.now();
+        const interval = 12 * 60 * 60 * 1000; // 12 hours in ms
+        const index = Math.floor(now / interval) % tips.length;
+        setCurrentTip(tips[index].tip);
+      };
+  
+      updateTip(); // Set initial tip
+  
+      const timer = setInterval(updateTip, 12 * 60 * 60 * 1000);
+  
+      return () => clearInterval(timer);
+    }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background">
@@ -223,7 +248,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
             { id: "home", label: "Home", icon: Home },
             { id: "sessions", label: "AI Sessions", icon: MessageCircle },
             { id: "resources", label: "Resources", icon: BookOpen },
-            { id: "community", label: "Community", icon: Users },
             { id: "profile", label: "Profile", icon: UserIcon },
           ].map(({ id, label, icon: Icon }) => (
             <Button
@@ -442,26 +466,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
             <Card className="col-span-full md:col-span-1">
               <CardHeader>
-                <CardTitle>Daily Tip</CardTitle>
+                <CardTitle>Quick Tip</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  "Take 5 deep breaths when you feel overwhelmed. It's a simple
-                  way to reset your mind and find calm."
+                  "{currentTip}"
                 </p>
               </CardContent>
             </Card>
 
-            <Card className="col-span-full md:col-span-1">
-              <CardHeader>
-                <CardTitle>Recent Sessions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Your conversation history and insights will appear here.
-                </p>
-              </CardContent>
-            </Card>
           </div>
         )}
 
@@ -483,6 +496,57 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <MessageCircle className="h-5 w-5 mr-2" />
                   Start New Session
                 </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Summary</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingSession ? (
+                  <div className="flex items-center justify-center h-16">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                    <p className="ml-2 text-sm text-muted-foreground">Loading session data...</p>
+                  </div>
+                ) : sessionSummary ? (
+                  <div className="space-y-3">
+                    <div className="text-sm">
+                      <p className="font-medium text-foreground mb-2">Last Session Summary:</p>
+                      {sessionSummary.description || sessionSummary.summary_text || sessionSummary.summary ? (
+                        <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {sessionSummary.description || sessionSummary.summary_text || sessionSummary.summary}
+                          </p>
+                          {sessionSummary.generated_at_utc && (
+                            <div className="text-xs text-muted-foreground mt-3 pt-2 border-t border-border">
+                              Session completed: {new Date(sessionSummary.generated_at_utc).toLocaleDateString()}
+                            </div>
+                          )}
+                        </div>
+                      ) : sessionSummary.summary_data ? (
+                        <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground">
+                            {sessionSummary.summary_data.summary ||
+                             sessionSummary.summary_data.summary ||
+                             "Session completed with mood analysis and wellness insights."}
+                          </p>
+                          {sessionSummary.summary_data.generated_at_utc && (
+                            <div className="text-xs text-muted-foreground mt-3 pt-2 border-t border-border">
+                              Session completed: {new Date(sessionSummary.summary_data.generated_at_utc).toLocaleDateString()}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Session data available but summary details not found.</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Complete a session to see your conversation history and insights here.
+                  </p>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -535,24 +599,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </div>
         )}
 
-        {dashboardPage === "community" && (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Community Support</CardTitle>
-                <CardDescription>
-                  Connect with others on similar journeys (Coming Soon)
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  We're building a safe space for young people to support each
-                  other. Stay tuned!
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
         {dashboardPage === "profile" && (
           <Card className="max-w-2xl">
