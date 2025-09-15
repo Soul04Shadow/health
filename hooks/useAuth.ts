@@ -3,7 +3,7 @@ import { User, ViewType, AuthMode } from "../lib/types"
 import { login, signup, logout } from "../lib/auth"
 
 export const useAuth = () => {
-  const [currentView, setCurrentView] = useState<ViewType>("auth")
+  const [currentView, setCurrentView] = useState<ViewType>("landing")
   const [authMode, setAuthMode] = useState<AuthMode>("login")
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loginForm, setLoginForm] = useState({ email: "", password: "" })

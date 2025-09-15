@@ -36,6 +36,6 @@ export interface MoodData {
   generated_at_utc: string
 }
 
-export type ViewType = "auth" | "dashboard" | "session"
+export type ViewType = "landing" | "auth" | "dashboard" | "session"
 export type AuthMode = "login" | "signup"
 export type DashboardPage = "home" | "sessions" | "resources" | "community" | "profile"

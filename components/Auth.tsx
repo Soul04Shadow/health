@@ -36,9 +36,9 @@ export const Auth: React.FC<AuthProps> = ({
           </div>
           <div>
             <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              YouthGuide
+              Welcome to YouthGuide
             </CardTitle>
-            <CardDescription className="text-lg mt-2">Your personal AI mentor for mental wellness</CardDescription>
+            <CardDescription className="text-lg mt-2">Your AI-powered companion for mental wellness</CardDescription>
           </div>
         </CardHeader>
 

@@ -7,6 +7,7 @@ import { Session } from "../components/Session"
 import { useAuth } from "../hooks/useAuth"
 import { useMessages } from "../hooks/useMessages"
 import { useSession } from "../hooks/useSession"
+import Landing from "./Landing"
 
 export default function YouthGuide() {
   const auth = useAuth()
@@ -44,6 +45,7 @@ export default function YouthGuide() {
 
   if (auth.currentView === "dashboard") {
     return (
+
       <Dashboard
         currentUser={auth.currentUser}
         handleLogout={handleLogout}
@@ -73,6 +75,10 @@ export default function YouthGuide() {
         setCurrentView={auth.setCurrentView}
       />
     )
+  }
+
+  if (auth.currentView === "landing") {
+    return <Landing onBeginJourney={() => auth.setCurrentView("auth")} />
   }
 
   return null
