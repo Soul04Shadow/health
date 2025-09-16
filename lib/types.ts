@@ -39,3 +39,13 @@ export interface MoodData {
 export type ViewType = "landing" | "auth" | "dashboard" | "session"
 export type AuthMode = "login" | "signup"
 export type DashboardPage = "home" | "sessions" | "resources" | "community" | "profile"
+
+export interface Exercise {
+  id: string
+  exercise_name: string
+  procedure: string
+  bgSound: string
+  video_link: string
+  expected_time_to_complete: string
+  image: string
+}

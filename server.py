@@ -446,6 +446,30 @@ class LiveAPIWebSocketServer:
                             if output_transcription and output_transcription.text:
                                 text_out = output_transcription.text
                                 output_transcriptions.append(text_out)
+
+                                # Check for and save suggested exercises
+                                try:
+                                    if '"suggested_exercises"' in text_out:
+                                        start = text_out.find("{")
+                                        end = text_out.rfind("}") + 1
+                                        if 0 <= start < end:
+                                            json_str = text_out[start:end]
+                                            data = json.loads(json_str)
+                                            exercise_ids = data.get("suggested_exercises")
+                                            uid = self.user_ids.get(client_id)
+                                            if uid and exercise_ids and isinstance(exercise_ids, list):
+                                                logger.info(f"Found suggested exercises: {exercise_ids} for user {uid}. Sending to db-server...")
+                                                payload = {"uid": uid, "exerciseIds": exercise_ids}
+                                                try:
+                                                    # This is a blocking call, consider using an async library like aiohttp in production
+                                                    response = requests.post("http://localhost:3000/save-exercises", json=payload)
+                                                    logger.info(f"Save exercises response status: {response.status_code}")
+                                                    logger.info(f"Save exercises response body: {response.text}")
+                                                except requests.exceptions.RequestException as req_e:
+                                                    logger.error(f"HTTP Request error when saving exercises: {req_e}")
+                                except Exception as e:
+                                    logger.error(f"Error processing suggested exercises: {e}")
+
                                 try:
                                     await websocket.send(json.dumps({
                                         "type": "text", "data": text_out

@@ -25,9 +25,12 @@ import {
   X,
   Activity,
 } from "lucide-react";
-import { User, DashboardPage, ViewType, MoodData } from "../lib/types";
+import { User, DashboardPage, ViewType, MoodData, Exercise } from "../lib/types";
 import tips from "../lib/health-tips.json";
+import allExercises from "../lib/exercises.json";
 import { Sidebar } from "./Sidebar";
+import { ExerciseCard } from "./ExerciseCard";
+import { ExerciseTemplate } from "./ExerciseTemplate";
 import {
   BarChart,
   Bar,
@@ -70,6 +73,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [currentTip, setCurrentTip] = useState("");
   const [sessionSummary, setSessionSummary] = useState<any>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(false);
+  const [suggestedExercises, setSuggestedExercises] = useState<Exercise[]>([]);
+  const [showAllExercises, setShowAllExercises] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
   const handleEdit = () => {
     setEditedName(currentUser?.name || "");
@@ -173,6 +179,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
         } else {
           console.log("No mood data found in latest summary");
         }
+
+        // Filter and set suggested exercises
+        if (userData.suggested_exercise_ids && Array.isArray(userData.suggested_exercise_ids)) {
+          const filteredExercises = allExercises.filter(ex => 
+            userData.suggested_exercise_ids.includes(ex.id)
+          );
+          setSuggestedExercises(filteredExercises);
+        }
       } else {
         console.error("Failed to fetch user data:", response.status, response.statusText);
       }
@@ -207,6 +221,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
   return (
     <div className="min-h-screen flex relative">
+      {selectedExercise && (
+        <ExerciseTemplate 
+          exercise={selectedExercise} 
+          onClose={() => setSelectedExercise(null)} 
+        />
+      )}
       <Sidebar
         dashboardPage={dashboardPage}
         setDashboardPage={setDashboardPage}
@@ -515,49 +535,56 @@ export const Dashboard: React.FC<DashboardProps> = ({
         )}
 
         {dashboardPage === "resources" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mindfulness</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Guided meditation and breathing exercises to help you stay
-                  present.
-                </p>
-                <Button variant="outline" className="w-full bg-transparent">
-                  Explore
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="space-y-8">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-4">Your Suggested Exercises</h2>
+              {suggestedExercises.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {suggestedExercises.map(exercise => (
+                    <ExerciseCard 
+                      key={exercise.id} 
+                      exercise={exercise} 
+                      onGetStarted={() => setSelectedExercise(exercise)} 
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 border rounded-lg">
+                  <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    Your AI mentor will add personalized exercises here after your sessions.
+                  </p>
+                  <Button
+                    onClick={() => setCurrentView("session")}
+                    className="mt-4"
+                    size="sm"
+                  >
+                    Start a Session to Get Started
+                  </Button>
+                </div>
+              )}
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Coping Strategies</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Learn healthy ways to manage stress and difficult emotions.
-                </p>
-                <Button variant="outline" className="w-full bg-transparent">
-                  Learn More
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="text-center">
+              <Button onClick={() => setShowAllExercises(!showAllExercises)}>
+                {showAllExercises ? "Less Exercises" : "More Exercises"}
+              </Button>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Crisis Support</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Immediate help and resources when you need urgent support.
-                </p>
-                <Button variant="destructive" className="w-full">
-                  Get Help Now
-                </Button>
-              </CardContent>
-            </Card>
+            {showAllExercises && (
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-4 mt-8">All Available Exercises</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                  {allExercises.map(exercise => (
+                    <ExerciseCard 
+                      key={exercise.id} 
+                      exercise={exercise} 
+                      onGetStarted={() => setSelectedExercise(exercise)} 
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
