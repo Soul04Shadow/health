@@ -11,6 +11,9 @@ export interface AudioClientType {
   onError: (error: any) => void
   onInterrupted: () => void
   interrupt: () => void
+  sendTextMessage: (message: string) => void
+  inputMode: "audio" | "text"
+  setUserId: (uid: string) => void
 }
 
 export interface User {
@@ -39,6 +42,7 @@ export interface MoodData {
 export type ViewType = "landing" | "auth" | "dashboard" | "session"
 export type AuthMode = "login" | "signup"
 export type DashboardPage = "home" | "sessions" | "resources" | "community" | "profile"
+export type InputMode = "audio" | "text"
 
 export interface Exercise {
   id: string

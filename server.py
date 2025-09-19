@@ -184,9 +184,25 @@ class LiveAPIWebSocketServer:
             logger.error(f"Error handling client {client_id}: {e}")
             logger.error(traceback.format_exc())
         finally:
-            # Clean up if needed
+            # Summarize and clean up on disconnect
+            logger.info(f"Cleaning up connection for client {client_id}")
+            uid = self.user_ids.get(client_id)
+            if uid and self.session_transcripts.get(client_id):
+                logger.info(f"Connection closed for UID {uid}. Summarizing transcript.")
+                try:
+                    await self.summarize_and_store(client_id, uid)
+                except Exception as e:
+                    logger.error(f"Error during cleanup summarization for client {client_id}: {e}")
+
+            # Clean up dictionaries
             if client_id in self.active_clients:
                 del self.active_clients[client_id]
+            if client_id in self.session_transcripts:
+                del self.session_transcripts[client_id]
+            if client_id in self.session_ids:
+                del self.session_ids[client_id]
+            if client_id in self.user_ids:
+                del self.user_ids[client_id]
 
     async def generate_dynamic_system_instruction(self, uid: str) -> str:
         """
@@ -365,7 +381,8 @@ class LiveAPIWebSocketServer:
                                         "text": txt,
                                         "ts": datetime.now(timezone.utc).isoformat()
                                     })
-                                    await session.send_text_input(txt)
+                                    # Corrected method to send text content
+                                    await session.send_realtime_input(text=txt)
                             elif data.get("type") == "user_id":
                                 # This shouldn't happen if client logic is correct, but log it.
                                 logger.warning(f"Received subsequent user_id message for client {client_id}.")

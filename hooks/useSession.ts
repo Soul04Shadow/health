@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react"
-import { AudioClientType, User, Message, DashboardPage } from "../lib/types"
+import { AudioClientType, User, Message, DashboardPage, InputMode } from "../lib/types"
+import AudioClient from "../lib/audio-client.js"
 
 export const useSession = (
   currentUser: User | null,
@@ -10,6 +11,7 @@ export const useSession = (
   const [sessionActive, setSessionActive] = useState(false)
   const [isAudioPlaying, setIsAudioPlaying] = useState(false)
   const [dashboardPage, setDashboardPage] = useState<DashboardPage>("home")
+  const [inputMode, setInputMode] = useState<InputMode>("audio")
 
   const audioClientRef = useRef<AudioClientType | null>(null)
   const sessionTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -38,17 +40,12 @@ export const useSession = (
       const { default: AudioClient } = await import("../lib/audio-client.js")
       const audioClient = new AudioClient("ws://localhost:8765")
 
-      await audioClient.connect()
-
-      // Send user ID to WebSocket server
-      if (currentUser?.uid && audioClient.ws) {
-        audioClient.ws.send(
-          JSON.stringify({
-            type: "user_id",
-            data: currentUser.uid,
-          })
-        )
+      // Set the user ID before connecting
+      if (currentUser?.uid) {
+        audioClient.setUserId(currentUser.uid)
       }
+
+      await audioClient.connect()
 
       let currentResponseText = ""
       let currentResponseElement: Message | null = null
@@ -56,8 +53,7 @@ export const useSession = (
       audioClient.onReady = () => {
         console.log("Audio client ready")
         setSessionActive(true)
-        setMessages((prev) => [
-          ...prev,
+        setMessages([
           {
             text: "Hello! I'm YouthGuide, your AI mentor. I'm here to listen and support you. What's on your mind today?",
             sender: "assistant",
@@ -155,6 +151,7 @@ export const useSession = (
     }
     if (audioClientRef.current) {
       audioClientRef.current.close()
+      audioClientRef.current = null // Reset the client
     }
     setSessionActive(false)
     setSessionSeconds(0)
@@ -168,6 +165,19 @@ export const useSession = (
     // Note: setCurrentView("dashboard") will be handled in main component
   }
 
+  const sendTextMessage = (message: string) => {
+    if (audioClientRef.current) {
+      audioClientRef.current.sendTextMessage(message)
+      setMessages((prev) => [...prev, { text: message, sender: "user" }])
+    }
+  }
+
+  useEffect(() => {
+    if (audioClientRef.current) {
+      audioClientRef.current.inputMode = inputMode
+    }
+  }, [inputMode])
+
   return {
     isRecording,
     sessionSeconds,
@@ -180,5 +190,8 @@ export const useSession = (
     startRecording,
     stopRecording,
     endSession,
+    sendTextMessage,
+    inputMode,
+    setInputMode,
   }
 }

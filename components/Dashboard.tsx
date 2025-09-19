@@ -242,7 +242,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <header className="flex justify-between items-center mb-8 md:mt-0 mt-12">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Welcome back, {currentUser?.name || currentUser?.email?.split("@")[0]}
+              Welcome back, {currentUserName || currentUser?.email?.split("@")[0]}
             </h1>
             <p className="text-lg text-muted-foreground">
               Here's your wellness overview.

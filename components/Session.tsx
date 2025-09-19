@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Mic, MicOff, PhoneOff, Settings, Home, MessageCircle } from "lucide-react"
+import { Mic, MicOff, PhoneOff, Settings, Home, MessageCircle, Send, Keyboard } from "lucide-react"
 import { Message, ViewType } from "../lib/types"
 import { formatTime } from "../lib/utils"
+import { Input } from "@/components/ui/input"
+import { useState } from "react"
 
 interface SessionProps {
   messages: Message[]
@@ -15,6 +17,8 @@ interface SessionProps {
   stopRecording: () => void
   endSession: () => void
   setCurrentView: (view: ViewType) => void
+  sendTextMessage: (message: string) => void
+  setInputMode: (mode: "audio" | "text") => void
 }
 
 export const Session: React.FC<SessionProps> = ({
@@ -28,7 +32,25 @@ export const Session: React.FC<SessionProps> = ({
   stopRecording,
   endSession,
   setCurrentView,
+  sendTextMessage,
+  setInputMode,
 }) => {
+  const [textMessage, setTextMessage] = useState("")
+  const [currentInputMode, setCurrentInputMode] = useState<"audio" | "text">("audio")
+
+  const handleSendText = () => {
+    if (textMessage.trim()) {
+      sendTextMessage(textMessage.trim())
+      setTextMessage("")
+    }
+  }
+
+  const toggleInputMode = () => {
+    const newMode = currentInputMode === "audio" ? "text" : "audio"
+    setCurrentInputMode(newMode)
+    setInputMode(newMode)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background flex items-center justify-center p-4">
       <Card className="w-full max-w-lg h-[90vh] max-h-[700px] shadow-2xl border-0 bg-card/90 backdrop-blur-sm flex flex-col overflow-hidden">
@@ -45,7 +67,7 @@ export const Session: React.FC<SessionProps> = ({
               </p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => setCurrentView("dashboard")}>
+          <Button variant="ghost" size="sm" onClick={endSession}>
             <Home className="h-4 w-4" />
           </Button>
         </div>
@@ -83,23 +105,47 @@ export const Session: React.FC<SessionProps> = ({
         )}
 
         {/* Controls */}
-        <div className="flex-shrink-0 p-4 flex justify-around items-center border-t border-border bg-card/50">
-          <Button variant="ghost" size="lg" className="w-14 h-14 rounded-full opacity-50 cursor-not-allowed">
-            <Settings className="h-6 w-6" />
-          </Button>
+        <div className="flex-shrink-0 p-4 border-t border-border bg-card/50">
+          {currentInputMode === "audio" ? (
+            <div className="flex justify-around items-center">
+              <Button variant="ghost" size="lg" className="w-14 h-14 rounded-full" onClick={toggleInputMode}>
+                <Keyboard className="h-6 w-6" />
+              </Button>
 
-          <Button
-            onClick={isRecording ? stopRecording : startRecording}
-            className={`w-20 h-20 rounded-full text-white transition-all duration-300 ${
-              isRecording ? "bg-secondary animate-pulse-glow" : "bg-primary hover:bg-primary/90"
-            }`}
-          >
-            {isRecording ? <MicOff className="h-8 w-8" /> : <Mic className="h-8 w-8" />}
-          </Button>
+              <Button
+                onClick={isRecording ? stopRecording : startRecording}
+                className={`w-20 h-20 rounded-full text-white transition-all duration-300 ${
+                  isRecording ? "bg-secondary animate-pulse-glow" : "bg-primary hover:bg-primary/90"
+                }`}
+              >
+                {isRecording ? <MicOff className="h-8 w-8" /> : <Mic className="h-8 w-8" />}
+              </Button>
 
-          <Button onClick={endSession} variant="destructive" size="lg" className="w-14 h-14 rounded-full">
-            <PhoneOff className="h-6 w-6" />
-          </Button>
+              <Button onClick={endSession} variant="destructive" size="lg" className="w-14 h-14 rounded-full">
+                <PhoneOff className="h-6 w-6" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Button variant="ghost" size="icon" onClick={toggleInputMode}>
+                <Mic className="h-6 w-6" />
+              </Button>
+              <Input
+                type="text"
+                placeholder="Type your message..."
+                value={textMessage}
+                onChange={(e) => setTextMessage(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSendText()}
+                className="flex-grow"
+              />
+              <Button size="icon" onClick={handleSendText}>
+                <Send className="h-6 w-6" />
+              </Button>
+              <Button onClick={endSession} variant="destructive" size="icon">
+                <PhoneOff className="h-6 w-6" />
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
     </div>

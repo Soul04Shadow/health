@@ -73,6 +73,8 @@ export default function YouthGuide() {
           auth.setCurrentView("dashboard")
         }}
         setCurrentView={auth.setCurrentView}
+        sendTextMessage={session.sendTextMessage}
+        setInputMode={session.setInputMode}
       />
     )
   }

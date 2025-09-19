@@ -122,4 +122,4 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
       </div>
     </>
   );
-}
+}                                                                                                                                                                                                              
