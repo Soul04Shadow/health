@@ -46,6 +46,7 @@ import {
 
 interface DashboardProps {
   currentUser: User | null;
+  currentUserName: string;
   handleLogout: () => void;
   dashboardPage: DashboardPage;
   setDashboardPage: (page: DashboardPage) => void;
@@ -68,6 +69,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   );
   const [editedGender, setEditedGender] = useState(currentUser?.gender || "");
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUserName,setUserName]=useState("")
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [isLoadingMood, setIsLoadingMood] = useState(false);
   const [currentTip, setCurrentTip] = useState("");
@@ -156,7 +158,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
       if (response.ok) {
         const userData = await response.json();
         console.log("User data received:", userData);
-
+        setUserName(userData.name);
+        console.log(currentUserName)
         const latestSummary = userData.latestSummary?.summary_data;
         console.log("Latest summary:", latestSummary);
 

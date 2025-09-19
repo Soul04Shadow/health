@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Exercise } from "../lib/types";
-import { X, Clock, Youtube } from "lucide-react";
+import { X, Clock, Youtube, Volume2, VolumeX } from "lucide-react";
 
 interface ExerciseTemplateProps {
   exercise: Exercise;
@@ -11,6 +11,14 @@ interface ExerciseTemplateProps {
 
 export const ExerciseTemplate: React.FC<ExerciseTemplateProps> = ({ exercise, onClose }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !audioRef.current.muted;
+      setIsMuted(!isMuted);
+    }
+  };
 
   useEffect(() => {
     if (audioRef.current) {
@@ -43,9 +51,12 @@ export const ExerciseTemplate: React.FC<ExerciseTemplateProps> = ({ exercise, on
             <Youtube className="h-5 w-5 mr-2" />
             Watch Video Guide
           </Button>
+          <Button variant="outline" size="icon" className="absolute bottom-4 right-4" onClick={toggleMute}>
+            {isMuted ? <VolumeX className="h-6 w-6" /> : <Volume2 className="h-6 w-6" />}
+          </Button>
         </CardContent>
       </Card>
-      <audio ref={audioRef} src={exercise.bgSound} loop />
+      <audio ref={audioRef} src={exercise.bgSound} loop muted={isMuted} />
     </div>
   );
 };
