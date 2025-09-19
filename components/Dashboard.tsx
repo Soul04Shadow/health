@@ -74,6 +74,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [sessionSummary, setSessionSummary] = useState<any>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(false);
   const [suggestedExercises, setSuggestedExercises] = useState<Exercise[]>([]);
+  const [isLoadingExercises, setIsLoadingExercises] = useState(false);
   const [showAllExercises, setShowAllExercises] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
@@ -136,15 +137,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
-  const fetchMoodData = async () => {
+  const fetchUserData = async () => {
     if (!currentUser?.uid) {
       console.log("No current user UID available");
       return;
     }
 
-    console.log("Fetching mood data for user:", currentUser.uid);
+    console.log("Fetching user data for user:", currentUser.uid);
     setIsLoadingMood(true);
     setIsLoadingSession(true);
+    setIsLoadingExercises(true);
     try {
       const response = await fetch(
         `http://localhost:3000/user/${currentUser.uid}`
@@ -181,9 +183,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }
 
         // Filter and set suggested exercises
-        if (userData.suggested_exercise_ids && Array.isArray(userData.suggested_exercise_ids)) {
-          const filteredExercises = allExercises.filter(ex => 
-            userData.suggested_exercise_ids.includes(ex.id)
+        if (latestSummary && latestSummary.suggested_exercises && Array.isArray(latestSummary.suggested_exercises)) {
+          const filteredExercises = allExercises.filter(ex =>
+            latestSummary.suggested_exercises.includes(ex.id)
           );
           setSuggestedExercises(filteredExercises);
         }
@@ -191,16 +193,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
         console.error("Failed to fetch user data:", response.status, response.statusText);
       }
     } catch (error) {
-      console.error("Error fetching mood data:", error);
+      console.error("Error fetching user data:", error);
     } finally {
       setIsLoadingMood(false);
       setIsLoadingSession(false);
+      setIsLoadingExercises(false);
     }
   };
 
   useEffect(() => {
     if (currentUser?.uid) {
-      fetchMoodData();
+      fetchUserData();
     }
   }, [currentUser?.uid]);
   
@@ -538,7 +541,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <div className="space-y-8">
             <div>
               <h2 className="text-2xl font-bold text-foreground mb-4">Your Suggested Exercises</h2>
-              {suggestedExercises.length > 0 ? (
+              {isLoadingExercises ? (
+                <div className="flex items-center justify-center h-32">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                  <p className="mt-2 text-sm text-muted-foreground">Loading exercises...</p>
+                </div>
+              ) : suggestedExercises.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
                   {suggestedExercises.map(exercise => (
                     <ExerciseCard 

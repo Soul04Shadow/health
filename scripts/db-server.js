@@ -76,9 +76,9 @@ app.get("/user/:uid", async (req, res) => {
       res.status(404).send({ error: "User not found." })
     } else {
       const userData = userDoc.data()
-      // Ensure suggested_exercise_ids is always an array
-      if (!userData.suggested_exercise_ids) {
-        userData.suggested_exercise_ids = []
+      // Ensure suggested_exercises is always an array
+      if (!userData.suggested_exercises) {
+        userData.suggested_exercises = []
       }
       res.status(200).send(userData)
     }
@@ -157,14 +157,14 @@ app.post("/save-exercises", async (req, res) => {
   try {
     const userRef = db.collection("users").doc(uid)
     await userRef.update({
-      suggested_exercise_ids: admin.firestore.FieldValue.arrayUnion(...exerciseIds),
+      suggested_exercises: admin.firestore.FieldValue.arrayUnion(...exerciseIds),
     })
     res.status(200).send({ message: "Exercises saved successfully" })
   } catch (error) {
     // If the document doesn't exist, create it with the exercises
     if (error.code === 5) {
       try {
-        await userRef.set({ suggested_exercise_ids: exerciseIds }, { merge: true })
+        await userRef.set({ suggested_exercises: exerciseIds }, { merge: true })
         res.status(200).send({ message: "Exercises saved successfully for new user" })
       } catch (setError) {
         res.status(500).send({ error: setError.message })

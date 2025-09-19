@@ -585,6 +585,7 @@ class LiveAPIWebSocketServer:
                 "urgent_support_recommended": False
             },
             "suggestions_non_clinical": [],
+            "suggested_exercises": ["ex001","ex002","ex003"],
         }
 
         user_prompt = (
