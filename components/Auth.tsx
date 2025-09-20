@@ -15,23 +15,29 @@ interface AuthProps {
   setSignupForm: (form: { email: string; password: string; name: string; age: string; gender: string }) => void
   handleLogin: () => void
   handleSignup: () => void
-  handleSendOtp: () => void
-  handleVerifyOtp: () => void
-  signupOtp: string
-  setSignupOtp: (otp: string) => void
-  isOtpSent: boolean
-  isOtpVerified: boolean
-  isSendingOtp: boolean
-  isVerifyingOtp: boolean
+  isLoggingIn: boolean
+  isSigningUp: boolean
   forgotPasswordMode: boolean
   setForgotPasswordMode: (mode: boolean) => void
-  forgotPasswordForm: { email: string; otp: string; password: string }
-  setForgotPasswordForm: (form: { email: string; otp: string; password: string }) => void
-  isResetCodeSent: boolean
-  isRequestingReset: boolean
-  isSubmittingNewPassword: boolean
+  forgotPasswordEmail: string
+  setForgotPasswordEmail: (email: string) => void
+  isSendingResetEmail: boolean
+  resetEmailSentTo: string | null
   handleRequestPasswordReset: () => void
-  handleSubmitPasswordReset: () => void
+  signupVerificationEmail: string | null
+  unverifiedLoginEmail: string | null
+}
+
+const InfoBanner: React.FC<{ message: string; tone?: "info" | "warning" }> = ({ message, tone = "info" }) => {
+  const toneClasses =
+    tone === "warning"
+      ? "bg-amber-100 text-amber-900 border-amber-200"
+      : "bg-sky-100 text-sky-900 border-sky-200"
+  return (
+    <div className={`rounded-md border px-3 py-2 text-sm ${toneClasses}`}>
+      {message}
+    </div>
+  )
 }
 
 export const Auth: React.FC<AuthProps> = ({
@@ -43,23 +49,17 @@ export const Auth: React.FC<AuthProps> = ({
   setSignupForm,
   handleLogin,
   handleSignup,
-  handleSendOtp,
-  handleVerifyOtp,
-  signupOtp,
-  setSignupOtp,
-  isOtpSent,
-  isOtpVerified,
-  isSendingOtp,
-  isVerifyingOtp,
+  isLoggingIn,
+  isSigningUp,
   forgotPasswordMode,
   setForgotPasswordMode,
-  forgotPasswordForm,
-  setForgotPasswordForm,
-  isResetCodeSent,
-  isRequestingReset,
-  isSubmittingNewPassword,
+  forgotPasswordEmail,
+  setForgotPasswordEmail,
+  isSendingResetEmail,
+  resetEmailSentTo,
   handleRequestPasswordReset,
-  handleSubmitPasswordReset,
+  signupVerificationEmail,
+  unverifiedLoginEmail,
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background flex items-center justify-center p-4">
@@ -84,6 +84,12 @@ export const Auth: React.FC<AuthProps> = ({
             </TabsList>
 
             <TabsContent value="login" className="space-y-4">
+              {unverifiedLoginEmail && (
+                <InfoBanner
+                  tone="warning"
+                  message={`Your email (${unverifiedLoginEmail}) is not verified yet. We have sent you a new verification link.`}
+                />
+              )}
               {!forgotPasswordMode ? (
                 <>
                   <Input
@@ -100,8 +106,12 @@ export const Auth: React.FC<AuthProps> = ({
                     onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
                     className="h-12"
                   />
-                  <Button onClick={handleLogin} className="w-full h-12 text-lg font-semibold">
-                    Login
+                  <Button
+                    onClick={handleLogin}
+                    className="w-full h-12 text-lg font-semibold"
+                    disabled={isLoggingIn}
+                  >
+                    {isLoggingIn ? "Logging in..." : "Login"}
                   </Button>
                   <Button variant="link" onClick={() => setForgotPasswordMode(true)} className="w-full">
                     Forgot your password?
@@ -112,70 +122,38 @@ export const Auth: React.FC<AuthProps> = ({
                   <Input
                     type="email"
                     placeholder="Email"
-                    value={forgotPasswordForm.email}
-                    onChange={(e) => setForgotPasswordForm({ ...forgotPasswordForm, email: e.target.value })}
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
                     className="h-12"
                   />
-                  {!isResetCodeSent ? (
-                    <>
-                      <p className="text-sm text-muted-foreground">
-                        Enter your registered email to receive a password reset code.
-                      </p>
-                      <Button
-                        onClick={handleRequestPasswordReset}
-                        disabled={isRequestingReset}
-                        className="w-full h-12 text-lg font-semibold"
-                      >
-                        {isRequestingReset ? "Sending reset code..." : "Send reset code"}
-                      </Button>
-                      <Button variant="ghost" onClick={() => setForgotPasswordMode(false)} className="w-full">
-                        Back to login
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Input
-                        type="text"
-                        placeholder="Enter reset code"
-                        value={forgotPasswordForm.otp}
-                        onChange={(e) => setForgotPasswordForm({ ...forgotPasswordForm, otp: e.target.value })}
-                        className="h-12 tracking-[0.3em]"
-                      />
-                      <Input
-                        type="password"
-                        placeholder="New password"
-                        value={forgotPasswordForm.password}
-                        onChange={(e) =>
-                          setForgotPasswordForm({ ...forgotPasswordForm, password: e.target.value })
-                        }
-                        className="h-12"
-                      />
-                      <div className="grid grid-cols-1 gap-3">
-                        <Button
-                          onClick={handleSubmitPasswordReset}
-                          disabled={isSubmittingNewPassword}
-                          className="w-full h-12 text-lg font-semibold"
-                        >
-                          {isSubmittingNewPassword ? "Resetting password..." : "Reset password"}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={handleRequestPasswordReset}
-                          disabled={isRequestingReset}
-                        >
-                          {isRequestingReset ? "Resending..." : "Resend code"}
-                        </Button>
-                        <Button variant="ghost" onClick={() => setForgotPasswordMode(false)}>
-                          Back to login
-                        </Button>
-                      </div>
-                    </>
+                  {resetEmailSentTo && (
+                    <InfoBanner
+                      message={`Password reset link sent to ${resetEmailSentTo}. Please check your inbox.`}
+                    />
                   )}
+                  <p className="text-sm text-muted-foreground">
+                    Enter your registered email to receive a password reset link from Firebase.
+                  </p>
+                  <Button
+                    onClick={handleRequestPasswordReset}
+                    disabled={isSendingResetEmail}
+                    className="w-full h-12 text-lg font-semibold"
+                  >
+                    {isSendingResetEmail ? "Sending reset link..." : "Send reset link"}
+                  </Button>
+                  <Button variant="ghost" onClick={() => setForgotPasswordMode(false)} className="w-full">
+                    Back to login
+                  </Button>
                 </div>
               )}
             </TabsContent>
 
             <TabsContent value="signup" className="space-y-4">
+              {signupVerificationEmail && (
+                <InfoBanner
+                  message={`We sent a verification link to ${signupVerificationEmail}. Please verify your email before logging in.`}
+                />
+              )}
               <Input
                 type="text"
                 placeholder="Full Name"
@@ -211,44 +189,14 @@ export const Auth: React.FC<AuthProps> = ({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Input
-                    type="email"
-                    placeholder="Email"
-                    value={signupForm.email}
-                    onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
-                    className="h-12"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleSendOtp}
-                    disabled={isSendingOtp || !signupForm.email}
-                  >
-                    {isSendingOtp ? "Sending..." : isOtpSent ? "Resend OTP" : "Send OTP"}
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    type="text"
-                    placeholder="Enter OTP"
-                    value={signupOtp}
-                    onChange={(e) => setSignupOtp(e.target.value)}
-                    className="h-12 tracking-[0.3em]"
-                    required
-                  />
-                  <Button type="button" onClick={handleVerifyOtp} disabled={isVerifyingOtp || !signupOtp}>
-                    {isVerifyingOtp ? "Verifying..." : isOtpVerified ? "Verified" : "Verify"}
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {isOtpVerified
-                    ? "Email verified successfully. You can now create your account."
-                    : "We will send a one-time password to verify your email before creating your account."}
-                </p>
-              </div>
+              <Input
+                type="email"
+                placeholder="Email"
+                value={signupForm.email}
+                onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
+                className="h-12"
+                required
+              />
               <Input
                 type="password"
                 placeholder="Password (min 6 characters)"
@@ -258,12 +206,15 @@ export const Auth: React.FC<AuthProps> = ({
                 className="h-12"
                 required
               />
+              <p className="text-xs text-muted-foreground">
+                We will send a verification link to your email via Firebase Authentication. Please verify before logging in.
+              </p>
               <Button
                 onClick={handleSignup}
                 className="w-full h-12 text-lg font-semibold"
-                disabled={!isOtpVerified}
+                disabled={isSigningUp}
               >
-                {isOtpVerified ? "Create Account" : "Verify email to continue"}
+                {isSigningUp ? "Creating account..." : "Create Account"}
               </Button>
             </TabsContent>
           </Tabs>

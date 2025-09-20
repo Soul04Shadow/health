@@ -4,11 +4,10 @@ import {
   login,
   signup,
   logout,
-  sendSignupOtp,
-  verifySignupOtp,
   requestPasswordReset,
-  resetPassword,
+  getCurrentUser,
 } from "../lib/auth"
+import type { SignupResult } from "../lib/auth"
 
 export const useAuth = () => {
   const [currentView, setCurrentView] = useState<ViewType>("landing")
@@ -22,32 +21,25 @@ export const useAuth = () => {
     age: "",
     gender: "",
   })
-  const [signupOtp, setSignupOtp] = useState("")
-  const [isOtpSent, setIsOtpSent] = useState(false)
-  const [isOtpVerified, setIsOtpVerified] = useState(false)
-  const [isSendingOtp, setIsSendingOtp] = useState(false)
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false)
   const [forgotPasswordModeState, setForgotPasswordMode] = useState(false)
-  const [forgotPasswordForm, setForgotPasswordForm] = useState({
-    email: "",
-    otp: "",
-    password: "",
-  })
-  const [isResetCodeSent, setIsResetCodeSent] = useState(false)
-  const [isRequestingReset, setIsRequestingReset] = useState(false)
-  const [isSubmittingNewPassword, setIsSubmittingNewPassword] = useState(false)
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("")
+  const [isSendingResetEmail, setIsSendingResetEmail] = useState(false)
+  const [resetEmailSentTo, setResetEmailSentTo] = useState<string | null>(null)
+  const [isLoggingIn, setIsLoggingIn] = useState(false)
+  const [isSigningUp, setIsSigningUp] = useState(false)
+  const [signupVerificationEmail, setSignupVerificationEmail] = useState<string | null>(null)
+  const [unverifiedLoginEmail, setUnverifiedLoginEmail] = useState<string | null>(null)
 
   useEffect(() => {
     const savedUser = localStorage.getItem("curez_user")
     if (savedUser) {
       try {
-        const user = JSON.parse(savedUser)
+        const user = JSON.parse(savedUser) as User
         setCurrentUser(user)
         setCurrentView("dashboard")
-        
-        // If user data doesn't have profile fields, try to fetch from server
-        if (user.uid && (!user.name || !user.age || !user.gender)) {
-          fetchUserProfile(user.uid)
+
+        if (user.uid) {
+          refreshUserProfile(user.uid)
         }
       } catch (error) {
         console.error("Error parsing saved user:", error)
@@ -57,168 +49,114 @@ export const useAuth = () => {
   }, [])
 
   useEffect(() => {
-    setSignupOtp("")
-    setIsOtpSent(false)
-    setIsOtpVerified(false)
+    if (!forgotPasswordModeState) {
+      setForgotPasswordEmail("")
+      setResetEmailSentTo(null)
+      setIsSendingResetEmail(false)
+    }
+  }, [forgotPasswordModeState])
+
+  useEffect(() => {
+    setSignupVerificationEmail(null)
   }, [signupForm.email])
 
-  const fetchUserProfile = async (uid: string) => {
+  const refreshUserProfile = async (uid: string) => {
     try {
-      const response = await fetch(`/api/user/${uid}`)
-      if (response.ok) {
-        const userData = await response.json()
-        
-        const updatedUser = {
-          uid: uid,
-          email: currentUser?.email || userData.email || "",
-          name: userData.name || "",
-          age: userData.age || undefined,
-          gender: userData.gender || "",
-        }
-        
-        setCurrentUser(updatedUser)
-        localStorage.setItem("curez_user", JSON.stringify(updatedUser))
+      const userData = await getCurrentUser(uid)
+      const updatedUser = {
+        uid,
+        email: userData.email || currentUser?.email || "",
+        name: userData.name || "",
+        age: userData.age,
+        gender: userData.gender || "",
       }
+
+      setCurrentUser(updatedUser)
+      localStorage.setItem("curez_user", JSON.stringify(updatedUser))
     } catch (error) {
-      console.error("Failed to fetch user profile:", error)
+      console.error("Failed to refresh user profile:", error)
     }
   }
 
   const handleLogin = async () => {
+    if (!loginForm.email || !loginForm.password) {
+      alert("Please enter your email and password.")
+      return
+    }
+
     try {
+      setIsLoggingIn(true)
       const user = await login(loginForm.email, loginForm.password)
       setCurrentUser(user)
       setCurrentView("dashboard")
+      setUnverifiedLoginEmail(null)
     } catch (error) {
-      alert(error instanceof Error ? error.message : "An error occurred")
+      const message = error instanceof Error ? error.message : "An error occurred"
+      if ((error as Error & { code?: string }).code === "EMAIL_NOT_VERIFIED") {
+        setUnverifiedLoginEmail(loginForm.email)
+      }
+      alert(message)
+    } finally {
+      setIsLoggingIn(false)
     }
   }
 
   const handleSignup = async () => {
-    if (!isOtpVerified) {
-      alert("Please verify your email with the OTP before creating an account.")
+    if (!signupForm.email || !signupForm.password || !signupForm.name || !signupForm.age || !signupForm.gender) {
+      alert("Please complete all required fields before signing up.")
       return
     }
 
     try {
-      const user = await signup(signupForm)
-      setCurrentUser(user)
-      setCurrentView("dashboard")
-      setSignupOtp("")
-      setIsOtpSent(false)
-      setIsOtpVerified(false)
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "An error occurred")
-    }
-  }
-
-  const handleSendOtp = async () => {
-    if (!signupForm.email) {
-      alert("Please enter your email before requesting an OTP.")
-      return
-    }
-
-    try {
-      setIsSendingOtp(true)
-      await sendSignupOtp(signupForm.email)
-      setIsOtpSent(true)
-      alert("Verification OTP sent to your email.")
+      setIsSigningUp(true)
+      const result: SignupResult = await signup(signupForm)
+      setSignupVerificationEmail(result.email)
+      alert("Verification email sent. Please check your inbox to verify your account before logging in.")
+      setAuthMode("login")
+      setForgotPasswordMode(false)
+      setLoginForm({ email: result.email, password: "" })
+      setSignupForm({ email: "", password: "", name: "", age: "", gender: "" })
     } catch (error) {
       alert(error instanceof Error ? error.message : "An error occurred")
     } finally {
-      setIsSendingOtp(false)
-    }
-  }
-
-  const handleVerifyOtp = async () => {
-    if (!signupForm.email || !signupOtp) {
-      alert("Please enter the OTP sent to your email.")
-      return
-    }
-
-    try {
-      setIsVerifyingOtp(true)
-      await verifySignupOtp(signupForm.email, signupOtp)
-      setIsOtpVerified(true)
-      alert("Email verified successfully.")
-    } catch (error) {
-      setIsOtpVerified(false)
-      alert(error instanceof Error ? error.message : "An error occurred")
-    } finally {
-      setIsVerifyingOtp(false)
+      setIsSigningUp(false)
     }
   }
 
   const handleRequestPasswordReset = async () => {
-    if (!forgotPasswordForm.email) {
-      alert("Please enter your email to reset your password.")
+    if (!forgotPasswordEmail) {
+      alert("Please enter your email to receive a password reset link.")
       return
     }
 
     try {
-      setIsRequestingReset(true)
-      await requestPasswordReset(forgotPasswordForm.email)
-      setIsResetCodeSent(true)
-      alert("Password reset code sent to your email.")
+      setIsSendingResetEmail(true)
+      await requestPasswordReset(forgotPasswordEmail)
+      setResetEmailSentTo(forgotPasswordEmail)
+      alert("Password reset email sent. Please check your inbox.")
     } catch (error) {
       alert(error instanceof Error ? error.message : "An error occurred")
     } finally {
-      setIsRequestingReset(false)
+      setIsSendingResetEmail(false)
     }
   }
-
-  const handleSubmitPasswordReset = async () => {
-    if (!forgotPasswordForm.email || !forgotPasswordForm.otp || !forgotPasswordForm.password) {
-      alert("Please complete all fields to reset your password.")
-      return
-    }
-
-    try {
-      setIsSubmittingNewPassword(true)
-      await resetPassword({
-        email: forgotPasswordForm.email,
-        otp: forgotPasswordForm.otp,
-        newPassword: forgotPasswordForm.password,
-      })
-      alert("Password reset successfully. You can now log in with your new password.")
-      setForgotPasswordForm({ email: "", otp: "", password: "" })
-      setIsResetCodeSent(false)
-      setForgotPasswordMode(false)
-      setLoginForm({ email: forgotPasswordForm.email, password: "" })
-    } catch (error) {
-      alert(error instanceof Error ? error.message : "An error occurred")
-    } finally {
-      setIsSubmittingNewPassword(false)
-    }
-  }
-
-  const setForgotPasswordModeState = (mode: boolean) => {
-    setForgotPasswordMode(mode)
-
-    if (mode) {
-      setForgotPasswordForm((prev) => ({ ...prev, email: loginForm.email || prev.email }))
-    }
-  }
-
-  useEffect(() => {
-    if (!forgotPasswordModeState) {
-      setForgotPasswordForm({ email: "", otp: "", password: "" })
-      setIsResetCodeSent(false)
-      setIsRequestingReset(false)
-      setIsSubmittingNewPassword(false)
-    }
-  }, [forgotPasswordModeState])
 
   const handleLogout = () => {
     logout()
     setCurrentUser(null)
     setCurrentView("auth")
-    // Note: audioClient close will be handled in session hook
   }
 
   const updateCurrentUser = (user: User) => {
     setCurrentUser(user)
     localStorage.setItem("curez_user", JSON.stringify(user))
+  }
+
+  const setForgotPasswordModeState = (mode: boolean) => {
+    setForgotPasswordMode(mode)
+    if (mode) {
+      setForgotPasswordEmail(loginForm.email)
+    }
   }
 
   return {
@@ -233,24 +171,18 @@ export const useAuth = () => {
     setSignupForm,
     handleLogin,
     handleSignup,
-    handleSendOtp,
-    handleVerifyOtp,
     handleLogout,
     updateCurrentUser,
-    signupOtp,
-    setSignupOtp,
-    isOtpSent,
-    isOtpVerified,
-    isSendingOtp,
-    isVerifyingOtp,
     forgotPasswordMode: forgotPasswordModeState,
     setForgotPasswordMode: setForgotPasswordModeState,
-    forgotPasswordForm,
-    setForgotPasswordForm,
-    isResetCodeSent,
-    isRequestingReset,
-    isSubmittingNewPassword,
+    forgotPasswordEmail,
+    setForgotPasswordEmail,
+    isSendingResetEmail,
+    resetEmailSentTo,
     handleRequestPasswordReset,
-    handleSubmitPasswordReset,
+    isLoggingIn,
+    isSigningUp,
+    signupVerificationEmail,
+    unverifiedLoginEmail,
   }
 }
