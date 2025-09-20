@@ -39,6 +39,23 @@ export default function CureZ() {
         setSignupForm={auth.setSignupForm}
         handleLogin={auth.handleLogin}
         handleSignup={auth.handleSignup}
+        handleSendOtp={auth.handleSendOtp}
+        handleVerifyOtp={auth.handleVerifyOtp}
+        signupOtp={auth.signupOtp}
+        setSignupOtp={auth.setSignupOtp}
+        isOtpSent={auth.isOtpSent}
+        isOtpVerified={auth.isOtpVerified}
+        isSendingOtp={auth.isSendingOtp}
+        isVerifyingOtp={auth.isVerifyingOtp}
+        forgotPasswordMode={auth.forgotPasswordMode}
+        setForgotPasswordMode={auth.setForgotPasswordMode}
+        forgotPasswordForm={auth.forgotPasswordForm}
+        setForgotPasswordForm={auth.setForgotPasswordForm}
+        isResetCodeSent={auth.isResetCodeSent}
+        isRequestingReset={auth.isRequestingReset}
+        isSubmittingNewPassword={auth.isSubmittingNewPassword}
+        handleRequestPasswordReset={auth.handleRequestPasswordReset}
+        handleSubmitPasswordReset={auth.handleSubmitPasswordReset}
       />
     )
   }
