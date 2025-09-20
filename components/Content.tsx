@@ -6,7 +6,7 @@ export default function Content() {
     return(
         <div>
         {/* Features Section */}
-      <section id="why-choose-youthguide" className="relative z-10 py-24 px-6 bg-gradient-to-b from-white to-orange-50/50">
+      <section id="why-choose-curez" className="relative z-10 py-24 px-6 bg-gradient-to-b from-white to-orange-50/50">
         <div className="max-w-7xl mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 50 }}
@@ -15,7 +15,7 @@ export default function Content() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Why Choose YouthGuide?</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Why Choose CureZ?</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Experience the future of mental wellness with our AI-powered platform designed specifically for young people.
             </p>
@@ -159,7 +159,7 @@ export default function Content() {
             >
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 text-balance">Your Wellness Journey</h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
-                From self-discovery to lasting well-being, here's how YouthGuide supports your mental health journey.
+                From self-discovery to lasting well-being, here's how CureZ supports your mental health journey.
               </p>
             </motion.div>
 

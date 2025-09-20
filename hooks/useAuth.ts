@@ -16,7 +16,7 @@ export const useAuth = () => {
   })
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("youthguide_user")
+    const savedUser = localStorage.getItem("curez_user")
     if (savedUser) {
       try {
         const user = JSON.parse(savedUser)
@@ -29,7 +29,7 @@ export const useAuth = () => {
         }
       } catch (error) {
         console.error("Error parsing saved user:", error)
-        localStorage.removeItem("youthguide_user")
+        localStorage.removeItem("curez_user")
       }
     }
   }, [])
@@ -49,7 +49,7 @@ export const useAuth = () => {
         }
         
         setCurrentUser(updatedUser)
-        localStorage.setItem("youthguide_user", JSON.stringify(updatedUser))
+        localStorage.setItem("curez_user", JSON.stringify(updatedUser))
       }
     } catch (error) {
       console.error("Failed to fetch user profile:", error)
@@ -85,7 +85,7 @@ export const useAuth = () => {
 
   const updateCurrentUser = (user: User) => {
     setCurrentUser(user)
-    localStorage.setItem("youthguide_user", JSON.stringify(user))
+    localStorage.setItem("curez_user", JSON.stringify(user))
   }
 
   return {

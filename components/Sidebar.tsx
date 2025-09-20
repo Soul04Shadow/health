@@ -50,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="text-2xl font-bold text-foreground cursor-pointer hover:text-primary transition-colors"
               onClick={onNavigateToLanding}
             >
-              YouthGuide
+              CureZ
             </h1>
           </div>
         )}

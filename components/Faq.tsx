@@ -25,12 +25,12 @@ export default function FAQ() {
           "Simply create an account on our platform, complete a brief assessment, and start exploring personalized wellness plans. Our AI assistant will guide you through the process and connect you with appropriate resources and support.",
       },
       {
-        question: "What age groups does YouthGuide support?",
+        question: "What age groups does CureZ support?",
         answer:
-          "YouthGuide is designed for young people aged 13-25. Our content and AI recommendations are tailored to address the unique mental health challenges faced during adolescence and young adulthood.",
+          "CureZ is designed for young people aged 13-25. Our content and AI recommendations are tailored to address the unique mental health challenges faced during adolescence and young adulthood.",
       },
       {
-        question: "Can I access YouthGuide offline?",
+        question: "Can I access CureZ offline?",
         answer:
           "While our AI chat requires internet connectivity, you can access mood tracking, journaling, and many resources offline. Premium features like real-time AI conversations require an internet connection.",
       },
@@ -59,7 +59,7 @@ export default function FAQ() {
                   Frequently Asked Questions
                 </h2>
                 <p className="text-xl text-muted-foreground leading-relaxed text-pretty">
-                  Everything you need to know about YouthGuide, from AI-powered support to getting started on
+                  Everything you need to know about CureZ, from AI-powered support to getting started on
                   your mental wellness journey.
                 </p>
               </motion.div>

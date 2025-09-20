@@ -62,7 +62,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
               }}
               className="text-white font-bold text-2xl drop-shadow-lg pr-10 cursor-pointer transition-all duration-300 hover:text-orange-200"
             >
-              YouthGuide
+              CureZ
             </motion.div>
 
             {/* Navigation Links */}
@@ -72,7 +72,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
                 whileTap={{ scale: 0.95 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 onClick={() => {
-                  const element = document.getElementById('why-choose-youthguide');
+                  const element = document.getElementById('why-choose-curez');
                   if (element) {
                     element.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }
@@ -158,7 +158,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
           <div className="px-6 lg:px-12">
             <div className="flex justify-between items-center">
               <p className="font-sans text-white/80 text-sm font-medium drop-shadow-lg">
-                © 2025 YouthGuide. All rights reserved.
+                © 2025 CureZ. All rights reserved.
               </p>
               <p className="font-sans text-white/80 text-sm font-medium drop-shadow-lg">
                 Powered by Gemini for Mental Wellness

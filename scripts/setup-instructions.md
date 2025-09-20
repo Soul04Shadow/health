@@ -1,4 +1,4 @@
-# YouthGuide Setup Instructions
+# CureZ Setup Instructions
 
 ## Backend Setup
 
