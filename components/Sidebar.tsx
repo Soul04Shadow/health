@@ -16,12 +16,14 @@ interface SidebarProps {
   dashboardPage: DashboardPage;
   setDashboardPage: (page: DashboardPage) => void;
   handleLogout: () => void;
+  onNavigateToLanding?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   dashboardPage,
   setDashboardPage,
   handleLogout,
+  onNavigateToLanding,
 }) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
@@ -36,12 +38,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const sidebarContent = (isCollapsed: boolean) => (
     <div className={`flex flex-col h-full bg-card p-4 ${isCollapsed ? 'items-center' : ''}`}>
       <div className={`flex items-center mb-8 ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
-        <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center">
+        <div 
+          className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
+          onClick={onNavigateToLanding}
+        >
           <MessageCircle className="h-7 w-7 text-primary-foreground" />
         </div>
         {!isCollapsed && (
           <div>
-            <h1 className="text-2xl font-bold text-foreground">YouthGuide</h1>
+            <h1 
+              className="text-2xl font-bold text-foreground cursor-pointer hover:text-primary transition-colors"
+              onClick={onNavigateToLanding}
+            >
+              YouthGuide
+            </h1>
           </div>
         )}
       </div>

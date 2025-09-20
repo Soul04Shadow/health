@@ -10,7 +10,13 @@ export const login = async (email: string, password: string): Promise<User> => {
     const data = await response.json()
 
     if (response.ok) {
-      const user: User = { uid: data.uid, email }
+      const user: User = { 
+        uid: data.uid, 
+        email,
+        name: data.name,
+        age: data.age,
+        gender: data.gender
+      }
       localStorage.setItem("youthguide_user", JSON.stringify(user))
       return user
     } else {

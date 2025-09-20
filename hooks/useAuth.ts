@@ -22,12 +22,39 @@ export const useAuth = () => {
         const user = JSON.parse(savedUser)
         setCurrentUser(user)
         setCurrentView("dashboard")
+        
+        // If user data doesn't have profile fields, try to fetch from server
+        if (user.uid && (!user.name || !user.age || !user.gender)) {
+          fetchUserProfile(user.uid)
+        }
       } catch (error) {
         console.error("Error parsing saved user:", error)
         localStorage.removeItem("youthguide_user")
       }
     }
   }, [])
+
+  const fetchUserProfile = async (uid: string) => {
+    try {
+      const response = await fetch(`http://localhost:3000/user/${uid}`)
+      if (response.ok) {
+        const userData = await response.json()
+        
+        const updatedUser = {
+          uid: uid,
+          email: currentUser?.email || userData.email || "",
+          name: userData.name || "",
+          age: userData.age || undefined,
+          gender: userData.gender || "",
+        }
+        
+        setCurrentUser(updatedUser)
+        localStorage.setItem("youthguide_user", JSON.stringify(updatedUser))
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error)
+    }
+  }
 
   const handleLogin = async () => {
     try {

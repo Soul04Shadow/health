@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 
 interface HeroSectionProps {
   onBeginJourney: () => void;
@@ -53,30 +54,61 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
         >
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <div className="text-white font-bold text-2xl drop-shadow-lg pr-10">
+            <motion.div 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="text-white font-bold text-2xl drop-shadow-lg pr-10 cursor-pointer transition-all duration-300 hover:text-orange-200"
+            >
               YouthGuide
-            </div>
+            </motion.div>
 
             {/* Navigation Links */}
-            <div className="flex items-center gap-8 text-white/90 font-sans text-sm font-medium drop-shadow-md">
-              <a
-                href="#wellness-journey"
-                className="hover:text-white hover:scale-105 transition-colors duration-300"
+            <div className="flex items-center gap-8 text-white/90 font-sans text-lg font-medium drop-shadow-md">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                onClick={() => {
+                  const element = document.getElementById('why-choose-youthguide');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+                className="hover:text-white transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/10"
               >
                 Our Mission
-              </a>
-              <a
-                href="#why-choose-youthguide"
-                className="hover:text-white hover:scale-105 transition-colors duration-300"
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                onClick={() => {
+                  const element = document.getElementById('wellness-journey');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+                className="hover:text-white transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/10"
               >
                 Resources
-              </a>
-              <a
-                href="#faq"
-                className="hover:text-white hover:scale-105 transition-colors duration-300"
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                onClick={() => {
+                  const element = document.getElementById('faq-section');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }}
+                className="hover:text-white transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/10"
               >
                 FAQ
-              </a>
+              </motion.button>
             </div>
           </div>
         </nav>
@@ -84,30 +116,45 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
         {/* Hero Content */}
         <div className="relative z-10 flex items-center justify-end h-screen">
           <div className="px-6 lg:px-12">
-            <div className="max-w-2xl fade-in text-right">
+            <motion.div 
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="max-w-2xl fade-in text-right"
+            >
               {/* Hero Heading */}
-              <h1 className="font-serif text-white text-4xl lg:text-6xl font-bold tracking-tight mb-8 drop-shadow-2xl">
+              <motion.h1 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="font-serif text-white text-4xl lg:text-6xl font-bold tracking-tight mb-8 drop-shadow-2xl"
+              >
                 Your AI-Powered Guide to{" "}
                 <em className="text-orange-500 drop-shadow-2xl">
                   Mental Wellness
                 </em>
-              </h1>
+              </motion.h1>
 
               {/* Call to Action Button */}
-              <button
+              <motion.button
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={onBeginJourney}
                 id="fancy"
-                className="btn-sweep group text-white font-sans font-semibold bg-orange-500 px-8 py-4 rounded-lg text-lg hover:scale-105 hover:shadow-2xl transition-all duration-300 shadow-xl drop-shadow-2xl"
+                className="btn-sweep group text-white font-sans font-semibold bg-orange-500 px-8 py-4 rounded-lg text-lg hover:shadow-2xl transition-all duration-300 shadow-xl drop-shadow-2xl"
               >
                   Start Your Wellness Journey
                
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="absolute bottom-6 left-0 right-0 z-10">
+        {/* <div className="absolute bottom-6 left-0 right-0 z-10">
           <div className="px-6 lg:px-12">
             <div className="flex justify-between items-center">
               <p className="font-sans text-white/80 text-sm font-medium drop-shadow-lg">
@@ -118,7 +165,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );
