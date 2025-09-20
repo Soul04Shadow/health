@@ -132,7 +132,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       console.log("Sending update data:", updateData);
 
-      const response = await fetch("http://localhost:3000/update-profile", {
+      const response = await fetch("/api/update-profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData),
@@ -178,9 +178,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setIsLoadingSession(true);
     setIsLoadingExercises(true);
     try {
-      const response = await fetch(
-        `http://localhost:3000/user/${currentUser.uid}`
-      );
+      const response = await fetch(`/api/user/${currentUser.uid}`);
       console.log("Response status:", response.status);
 
       if (response.ok) {
