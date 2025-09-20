@@ -16,13 +16,33 @@ const port = 3000
 app.use(cors())
 app.use(express.json())
 
+const OTP_EXPIRATION_MINUTES = 10
+const PASSWORD_RESET_EXPIRATION_MINUTES = 15
+
+const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
+
 app.get("/", (req, res) => {
   res.send("CureZ DB server is running!")
 })
 
 app.post("/signup", async (req, res) => {
   const { email, password, name, age, gender } = req.body
+  if (!email || !password) {
+    return res.status(400).send({ error: "Missing email or password." })
+  }
   try {
+    const verificationRef = db.collection("email_verifications").doc(email)
+    const verificationDoc = await verificationRef.get()
+
+    if (!verificationDoc.exists) {
+      return res.status(400).send({ error: "Please verify your email before signing up." })
+    }
+
+    const verificationData = verificationDoc.data()
+    if (!verificationData || verificationData.verified !== true) {
+      return res.status(400).send({ error: "Email verification is pending. Please verify your email." })
+    }
+
     // Create user in Firebase Auth
     const userRecord = await admin.auth().createUser({
       email: email,
@@ -40,7 +60,16 @@ app.post("/signup", async (req, res) => {
         age: Number.parseInt(age),
         gender: gender,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        emailVerified: true,
       })
+
+    await verificationRef.set(
+      {
+        used: true,
+        usedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    )
 
     res.status(201).send({ uid: userRecord.uid })
   } catch (error) {
@@ -57,6 +86,10 @@ app.post("/login", async (req, res) => {
     const userDoc = await db.collection("users").doc(userRecord.uid).get()
     const userData = userDoc.exists ? userDoc.data() : {}
 
+    if (userData && userData.emailVerified === false) {
+      return res.status(403).send({ error: "Please verify your email before logging in." })
+    }
+
     res.status(200).send({
       uid: userRecord.uid,
       message: "Login successful",
@@ -64,6 +97,164 @@ app.post("/login", async (req, res) => {
     })
   } catch (error) {
     res.status(401).send({ error: "Invalid credentials. Please check your email and password." })
+  }
+})
+
+app.post("/send-otp", async (req, res) => {
+  const { email } = req.body
+  if (!email) {
+    return res.status(400).send({ error: "Email is required to send an OTP." })
+  }
+
+  try {
+    const otp = generateOtp()
+    await db.collection("email_verifications").doc(email).set({
+      otp,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      verified: false,
+      used: false,
+    })
+
+    console.log(`Generated OTP ${otp} for ${email}.`)
+    res.status(200).send({ message: "Verification OTP generated successfully." })
+  } catch (error) {
+    res.status(500).send({ error: error.message })
+  }
+})
+
+app.post("/verify-otp", async (req, res) => {
+  const { email, otp } = req.body
+  if (!email || !otp) {
+    return res.status(400).send({ error: "Email and OTP are required." })
+  }
+
+  try {
+    const verificationRef = db.collection("email_verifications").doc(email)
+    const verificationDoc = await verificationRef.get()
+
+    if (!verificationDoc.exists) {
+      return res.status(404).send({ error: "No OTP request found for this email." })
+    }
+
+    const data = verificationDoc.data()
+    const createdAt = data && data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null
+
+    if (!createdAt) {
+      return res.status(400).send({ error: "OTP timestamp is invalid. Please request a new OTP." })
+    }
+
+    if (new Date().getTime() - createdAt.getTime() > OTP_EXPIRATION_MINUTES * 60 * 1000) {
+      return res.status(400).send({ error: "OTP has expired. Please request a new one." })
+    }
+
+    if (data.verified === true) {
+      return res.status(200).send({ message: "Email already verified." })
+    }
+
+    if (data.otp !== otp) {
+      return res.status(400).send({ error: "Invalid OTP. Please try again." })
+    }
+
+    await verificationRef.set(
+      {
+        verified: true,
+        verifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    )
+
+    res.status(200).send({ message: "OTP verified successfully." })
+  } catch (error) {
+    res.status(500).send({ error: error.message })
+  }
+})
+
+app.post("/forgot-password", async (req, res) => {
+  const { email } = req.body
+  if (!email) {
+    return res.status(400).send({ error: "Email is required." })
+  }
+
+  try {
+    let userRecord
+    try {
+      userRecord = await admin.auth().getUserByEmail(email)
+    } catch (authError) {
+      if (authError.code === "auth/user-not-found") {
+        return res.status(404).send({ error: "No account found with this email." })
+      }
+      throw authError
+    }
+
+    const resetCode = generateOtp()
+    await db.collection("password_resets").doc(email).set({
+      otp: resetCode,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      used: false,
+      uid: userRecord.uid,
+    })
+
+    console.log(`Generated password reset code ${resetCode} for ${email}.`)
+    res.status(200).send({ message: "Password reset code generated successfully." })
+  } catch (error) {
+    res.status(500).send({ error: error.message })
+  }
+})
+
+app.post("/reset-password", async (req, res) => {
+  const { email, otp, newPassword } = req.body
+  if (!email || !otp || !newPassword) {
+    return res.status(400).send({ error: "Email, OTP, and new password are required." })
+  }
+
+  if (typeof newPassword !== "string" || newPassword.length < 6) {
+    return res.status(400).send({ error: "New password must be at least 6 characters long." })
+  }
+
+  try {
+    const resetRef = db.collection("password_resets").doc(email)
+    const resetDoc = await resetRef.get()
+
+    if (!resetDoc.exists) {
+      return res.status(404).send({ error: "No password reset request found for this email." })
+    }
+
+    const data = resetDoc.data()
+    if (!data || data.used) {
+      return res.status(400).send({ error: "This reset code has already been used. Please request a new one." })
+    }
+
+    const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : null
+    if (!createdAt || new Date().getTime() - createdAt.getTime() > PASSWORD_RESET_EXPIRATION_MINUTES * 60 * 1000) {
+      return res.status(400).send({ error: "Reset code has expired. Please request a new one." })
+    }
+
+    if (data.otp !== otp) {
+      return res.status(400).send({ error: "Invalid reset code. Please try again." })
+    }
+
+    let userRecord
+    try {
+      userRecord = await admin.auth().getUserByEmail(email)
+    } catch (authError) {
+      if (authError.code === "auth/user-not-found") {
+        return res.status(404).send({ error: "No account found with this email." })
+      }
+      throw authError
+    }
+    await admin.auth().updateUser(userRecord.uid, { password: newPassword })
+
+    await resetRef.set(
+      {
+        used: true,
+        usedAt: admin.firestore.FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    )
+
+    res.status(200).send({ message: "Password has been reset successfully." })
+  } catch (error) {
+    res.status(500).send({ error: error.message })
   }
 })
 
