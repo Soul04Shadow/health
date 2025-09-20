@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.send('YouthGuide DB server is running!');
+  res.send('CureZ DB server is running!');
 });
 
 // Signup route

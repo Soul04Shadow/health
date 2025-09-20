@@ -17,7 +17,7 @@ export const login = async (email: string, password: string): Promise<User> => {
         age: data.age,
         gender: data.gender
       }
-      localStorage.setItem("youthguide_user", JSON.stringify(user))
+      localStorage.setItem("curez_user", JSON.stringify(user))
       return user
     } else {
       throw new Error(data.error || "Login failed")
@@ -51,7 +51,7 @@ export const signup = async (formData: {
         age: Number.parseInt(formData.age),
         gender: formData.gender,
       }
-      localStorage.setItem("youthguide_user", JSON.stringify(user))
+      localStorage.setItem("curez_user", JSON.stringify(user))
       return user
     } else {
       throw new Error(data.error || "Signup failed")
@@ -84,5 +84,5 @@ export const getCurrentUser = async (uid: string): Promise<User> => {
   }
 }
 export const logout = () => {
-  localStorage.removeItem("youthguide_user")
+  localStorage.removeItem("curez_user")
 }

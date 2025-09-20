@@ -9,7 +9,7 @@ import { useMessages } from "../hooks/useMessages"
 import { useSession } from "../hooks/useSession"
 import Landing from "./Landing"
 
-export default function YouthGuide() {
+export default function CureZ() {
   const auth = useAuth()
   const { messages, setMessages, messagesEndRef } = useMessages()
   const session = useSession(auth.currentUser, setMessages)

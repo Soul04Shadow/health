@@ -61,7 +61,7 @@ export const Session: React.FC<SessionProps> = ({
               <MessageCircle className="h-6 w-6 text-primary-foreground" />
             </div>
             <div>
-              <h2 className="font-bold text-foreground">YouthGuide</h2>
+              <h2 className="font-bold text-foreground">CureZ</h2>
               <p className="text-xs text-muted-foreground">
                 {sessionActive ? formatTime(sessionSeconds) : "Connecting..."}
               </p>

@@ -20,7 +20,7 @@ app.use(cors())
 app.use(express.json())
 
 app.get("/", (req, res) => {
-  res.send("YouthGuide DB server is running!")
+  res.send("CureZ DB server is running!")
 })
 
 // Enhanced signup route with additional user fields
@@ -140,5 +140,5 @@ app.post("/save-summary", async (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Enhanced YouthGuide server listening at http://localhost:${port}`)
+  console.log(`Enhanced CureZ server listening at http://localhost:${port}`)
 })

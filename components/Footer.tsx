@@ -31,7 +31,7 @@ export default function Footer() {
                 <Brain className="w-8 h-8 text-primary" />
               </div>
               <span className="text-3xl font-bold text-primary">
-                YouthGuide
+                CureZ
               </span>
             </motion.div>
             
@@ -49,7 +49,7 @@ export default function Footer() {
           <div className="border-t border-border/50 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-muted-foreground text-sm">
-                © 2025 YouthGuide. Powered by GenAI for Mental Wellness.
+                © 2025 CureZ. Powered by GenAI for Mental Wellness.
               </p>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span>Made with Respect and Care for mental wellness</span>

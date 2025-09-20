@@ -17,7 +17,7 @@ app.use(cors())
 app.use(express.json())
 
 app.get("/", (req, res) => {
-  res.send("YouthGuide DB server is running!")
+  res.send("CureZ DB server is running!")
 })
 
 app.post("/signup", async (req, res) => {
@@ -176,5 +176,5 @@ app.post("/save-exercises", async (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`YouthGuide DB Server listening at http://localhost:${port}`)
+  console.log(`CureZ DB Server listening at http://localhost:${port}`)
 })

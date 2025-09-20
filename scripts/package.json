@@ -1,7 +1,7 @@
 {
-  "name": "youthguide-backend",
+  "name": "curez-backend",
   "version": "1.0.0",
-  "description": "YouthGuide backend services",
+  "description": "CureZ backend services",
   "main": "db-server.js",
   "scripts": {
     "start": "node db-server.js",
@@ -15,7 +15,7 @@
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "keywords": ["youthguide", "ai", "mental-health", "firebase"],
-  "author": "YouthGuide Team",
+  "keywords": ["curez", "ai", "mental-health", "firebase"],
+  "author": "CureZ Team",
   "license": "MIT"
 }

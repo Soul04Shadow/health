@@ -55,7 +55,7 @@ export const useSession = (
         setSessionActive(true)
         setMessages([
           {
-            text: "Hello! I'm YouthGuide, your AI mentor. I'm here to listen and support you. What's on your mind today?",
+            text: "Hello! I'm CureZ, your AI mentor. I'm here to listen and support you. What's on your mind today?",
             sender: "assistant",
           },
         ])
