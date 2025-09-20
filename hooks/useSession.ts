@@ -38,7 +38,7 @@ export const useSession = (
   const initializeAudioClient = async () => {
     try {
       const { default: AudioClient } = await import("../lib/audio-client.js")
-      const audioClient = new AudioClient("ws://localhost:8765")
+      const audioClient = new AudioClient()
 
       // Set the user ID before connecting
       if (currentUser?.uid) {
