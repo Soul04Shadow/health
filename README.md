@@ -8,3 +8,13 @@ The application proxies WebSocket connections through Next.js so the browser can
 - `NEXT_PUBLIC_WS_PATH` (optional) – Relative path on the Next.js app that should forward to the upstream service. Defaults to `/api/ws`.
 
 When running locally, ensure `WS_SERVICE_URL` points to your WebSocket server so the built-in rewrite can proxy upgrade requests correctly.
+
+
+## Firebase Authentication
+
+Email verification and password reset now rely on Firebase Authentication's managed flows. Configure the following environment variables in your Next.js runtime so the client can call the Identity Toolkit API:
+
+- `NEXT_PUBLIC_FIREBASE_API_KEY` – Web API key from your Firebase project settings.
+- `DATABASE_SERVICE_URL` – Base URL for the Express database service (unchanged).
+
+Users must verify their email address via the link Firebase emails after sign-up before they can sign in. Password reset requests also trigger Firebase to email the standard password reset link.

@@ -14,7 +14,6 @@ export default function CureZ() {
   const { messages, setMessages, messagesEndRef } = useMessages()
   const session = useSession(auth.currentUser, setMessages)
 
-  // Initialize audio client when session starts
   useEffect(() => {
     if (auth.currentView === "session" && !session.audioClientRef.current) {
       session.initializeAudioClient()
@@ -39,13 +38,23 @@ export default function CureZ() {
         setSignupForm={auth.setSignupForm}
         handleLogin={auth.handleLogin}
         handleSignup={auth.handleSignup}
+        isLoggingIn={auth.isLoggingIn}
+        isSigningUp={auth.isSigningUp}
+        forgotPasswordMode={auth.forgotPasswordMode}
+        setForgotPasswordMode={auth.setForgotPasswordMode}
+        forgotPasswordEmail={auth.forgotPasswordEmail}
+        setForgotPasswordEmail={auth.setForgotPasswordEmail}
+        isSendingResetEmail={auth.isSendingResetEmail}
+        resetEmailSentTo={auth.resetEmailSentTo}
+        handleRequestPasswordReset={auth.handleRequestPasswordReset}
+        signupVerificationEmail={auth.signupVerificationEmail}
+        unverifiedLoginEmail={auth.unverifiedLoginEmail}
       />
     )
   }
 
   if (auth.currentView === "dashboard") {
     return (
-
       <Dashboard
         currentUser={auth.currentUser}
         handleLogout={handleLogout}

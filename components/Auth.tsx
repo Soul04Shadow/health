@@ -15,6 +15,29 @@ interface AuthProps {
   setSignupForm: (form: { email: string; password: string; name: string; age: string; gender: string }) => void
   handleLogin: () => void
   handleSignup: () => void
+  isLoggingIn: boolean
+  isSigningUp: boolean
+  forgotPasswordMode: boolean
+  setForgotPasswordMode: (mode: boolean) => void
+  forgotPasswordEmail: string
+  setForgotPasswordEmail: (email: string) => void
+  isSendingResetEmail: boolean
+  resetEmailSentTo: string | null
+  handleRequestPasswordReset: () => void
+  signupVerificationEmail: string | null
+  unverifiedLoginEmail: string | null
+}
+
+const InfoBanner: React.FC<{ message: string; tone?: "info" | "warning" }> = ({ message, tone = "info" }) => {
+  const toneClasses =
+    tone === "warning"
+      ? "bg-amber-100 text-amber-900 border-amber-200"
+      : "bg-sky-100 text-sky-900 border-sky-200"
+  return (
+    <div className={`rounded-md border px-3 py-2 text-sm ${toneClasses}`}>
+      {message}
+    </div>
+  )
 }
 
 export const Auth: React.FC<AuthProps> = ({
@@ -26,6 +49,17 @@ export const Auth: React.FC<AuthProps> = ({
   setSignupForm,
   handleLogin,
   handleSignup,
+  isLoggingIn,
+  isSigningUp,
+  forgotPasswordMode,
+  setForgotPasswordMode,
+  forgotPasswordEmail,
+  setForgotPasswordEmail,
+  isSendingResetEmail,
+  resetEmailSentTo,
+  handleRequestPasswordReset,
+  signupVerificationEmail,
+  unverifiedLoginEmail,
 }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background flex items-center justify-center p-4">
@@ -50,26 +84,76 @@ export const Auth: React.FC<AuthProps> = ({
             </TabsList>
 
             <TabsContent value="login" className="space-y-4">
-              <Input
-                type="email"
-                placeholder="Email"
-                value={loginForm.email}
-                onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                className="h-12"
-              />
-              <Input
-                type="password"
-                placeholder="Password"
-                value={loginForm.password}
-                onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                className="h-12"
-              />
-              <Button onClick={handleLogin} className="w-full h-12 text-lg font-semibold">
-                Login
-              </Button>
+              {unverifiedLoginEmail && (
+                <InfoBanner
+                  tone="warning"
+                  message={`Your email (${unverifiedLoginEmail}) is not verified yet. We have sent you a new verification link.`}
+                />
+              )}
+              {!forgotPasswordMode ? (
+                <>
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={loginForm.email}
+                    onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                    className="h-12"
+                  />
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={loginForm.password}
+                    onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                    className="h-12"
+                  />
+                  <Button
+                    onClick={handleLogin}
+                    className="w-full h-12 text-lg font-semibold"
+                    disabled={isLoggingIn}
+                  >
+                    {isLoggingIn ? "Logging in..." : "Login"}
+                  </Button>
+                  <Button variant="link" onClick={() => setForgotPasswordMode(true)} className="w-full">
+                    Forgot your password?
+                  </Button>
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    value={forgotPasswordEmail}
+                    onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                    className="h-12"
+                  />
+                  {resetEmailSentTo && (
+                    <InfoBanner
+                      message={`Password reset link sent to ${resetEmailSentTo}. Please check your inbox.`}
+                    />
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    Enter your registered email to receive a password reset link from Firebase.
+                  </p>
+                  <Button
+                    onClick={handleRequestPasswordReset}
+                    disabled={isSendingResetEmail}
+                    className="w-full h-12 text-lg font-semibold"
+                  >
+                    {isSendingResetEmail ? "Sending reset link..." : "Send reset link"}
+                  </Button>
+                  <Button variant="ghost" onClick={() => setForgotPasswordMode(false)} className="w-full">
+                    Back to login
+                  </Button>
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="signup" className="space-y-4">
+              {signupVerificationEmail && (
+                <InfoBanner
+                  message={`We sent a verification link to ${signupVerificationEmail}. Please verify your email before logging in.`}
+                />
+              )}
               <Input
                 type="text"
                 placeholder="Full Name"
@@ -122,8 +206,15 @@ export const Auth: React.FC<AuthProps> = ({
                 className="h-12"
                 required
               />
-              <Button onClick={handleSignup} className="w-full h-12 text-lg font-semibold">
-                Create Account
+              <p className="text-xs text-muted-foreground">
+                We will send a verification link to your email via Firebase Authentication. Please verify before logging in.
+              </p>
+              <Button
+                onClick={handleSignup}
+                className="w-full h-12 text-lg font-semibold"
+                disabled={isSigningUp}
+              >
+                {isSigningUp ? "Creating account..." : "Create Account"}
               </Button>
             </TabsContent>
           </Tabs>

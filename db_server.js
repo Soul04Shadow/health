@@ -1,7 +1,7 @@
 const express = require('express');
 const admin = require('firebase-admin');
 const cors = require('cors');
-// Initialize Firebase Admin SDK
+
 const serviceAccount = require('./admin-key.json');
 
 admin.initializeApp({
@@ -19,55 +19,84 @@ app.get('/', (req, res) => {
   res.send('CureZ DB server is running!');
 });
 
-// Signup route
 app.post('/signup', async (req, res) => {
-  const { email, password } = req.body;
+  const { uid, email, name, age, gender, emailVerified } = req.body;
+
+  if (!uid || !email) {
+    return res.status(400).send({ error: 'Missing uid or email.' });
+  }
+
   try {
-    const userRecord = await admin.auth().createUser({
-      email: email,
-      password: password,
-    });
-    res.status(201).send({ uid: userRecord.uid });
+    let userRecord;
+    try {
+      userRecord = await admin.auth().getUser(uid);
+    } catch (error) {
+      userRecord = await admin.auth().getUserByEmail(email);
+    }
+
+    const profileData = {
+      email,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    };
+
+    if (typeof emailVerified === 'boolean') {
+      profileData.emailVerified = emailVerified;
+    }
+
+    if (name) {
+      profileData.name = name;
+    }
+
+    if (gender) {
+      profileData.gender = gender;
+    }
+
+    if (age !== undefined && age !== null && age !== '') {
+      const numericAge = Number.parseInt(age, 10);
+      if (!Number.isNaN(numericAge)) {
+        profileData.age = numericAge;
+      }
+    }
+
+    await db.collection('users').doc(userRecord.uid).set(profileData, { merge: true });
+
+    if (name && userRecord.displayName !== name) {
+      try {
+        await admin.auth().updateUser(userRecord.uid, { displayName: name });
+      } catch (error) {
+        console.warn('Failed to update display name:', error.message);
+      }
+    }
+
+    res.status(200).send({ uid: userRecord.uid });
   } catch (error) {
-    res.status(400).send({ error: error.message });
+    res.status(500).send({ error: error.message });
   }
 });
 
-// Login route
 app.post('/login', async (req, res) => {
-    // NOTE: This is a simplified login for server-side session management.
-    // For client-side apps, you would typically use Firebase's client-side SDKs
-    // to sign in and then send the ID token to the backend for verification.
-    const { email, password } = req.body;
-    try {
-        const userRecord = await admin.auth().getUserByEmail(email);
-        // This is a simplified login and does not actually verify the password.
-        // In a real application, you should use the Firebase client-side SDK to sign in the user
-        // and then send the ID token to the backend for verification.
-        res.status(200).send({ uid: userRecord.uid, message: "Login successful (simulation)" });
-    } catch (error) {
-        res.status(401).send({ error: "Invalid credentials. Please check your email and password." });
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).send({ error: 'Email is required.' });
+  }
+
+  try {
+    const userRecord = await admin.auth().getUserByEmail(email);
+
+    if (!userRecord.emailVerified) {
+      return res.status(403).send({ error: 'Please verify your email before logging in.' });
     }
+
+    const userDoc = await db.collection('users').doc(userRecord.uid).get();
+    const profile = userDoc.exists ? userDoc.data() : null;
+
+    res.status(200).send({ uid: userRecord.uid, profile });
+  } catch (error) {
+    res.status(401).send({ error: 'Unable to locate account for the provided email.' });
+  }
 });
 
-
-// Get latest summary route
-app.get('/get-summary/:uid', async (req, res) => {
-    const { uid } = req.params;
-    try {
-        const userRef = db.collection('users').doc(uid);
-        const doc = await userRef.get();
-        if (!doc.exists) {
-            res.status(404).send({ error: 'No summary found for this user.' });
-        } else {
-            res.status(200).send(doc.data());
-        }
-    } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
-});
-
-// Save summary route
 app.post('/save-summary', async (req, res) => {
   const { uid, summary } = req.body;
   if (!uid || !summary) {
@@ -83,59 +112,72 @@ app.post('/save-summary', async (req, res) => {
   }
 });
 
-// Save name route
 app.post('/save-name', async (req, res) => {
-    const { uid, name } = req.body;
-    if (!uid || !name) {
-        return res.status(400).send({ error: 'Missing uid or name' });
-    }
+  const { uid, name } = req.body;
+  if (!uid || !name) {
+    return res.status(400).send({ error: 'Missing uid or name' });
+  }
 
-    try {
-        const userRef = db.collection('users').doc(uid);
-        await userRef.set({ name: name }, { merge: true });
-        res.status(200).send({ message: 'Name saved successfully' });
-    } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
+  try {
+    const userRef = db.collection('users').doc(uid);
+    await userRef.set({ name }, { merge: true });
+    res.status(200).send({ message: 'Name saved successfully' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 });
 
-// Update profile route
 app.post('/update-profile', async (req, res) => {
-    const { uid, name, age, gender } = req.body;
-    if (!uid) {
-        return res.status(400).send({ error: 'Missing uid' });
-    }
+  const { uid, name, age, gender, emailVerified } = req.body;
+  if (!uid) {
+    return res.status(400).send({ error: 'Missing uid' });
+  }
 
-    try {
-        const userRef = db.collection('users').doc(uid);
-        const updateData = {};
+  try {
+    const userRef = db.collection('users').doc(uid);
+    const updateData = {};
 
-        if (name !== undefined) updateData.name = name;
-        if (age !== undefined && age !== "") updateData.age = Number.parseInt(age);
-        if (gender !== undefined) updateData.gender = gender;
+    if (name !== undefined) updateData.name = name;
+    if (age !== undefined && age !== '') updateData.age = Number.parseInt(age, 10);
+    if (gender !== undefined) updateData.gender = gender;
+    if (typeof emailVerified === 'boolean') updateData.emailVerified = emailVerified;
 
-        await userRef.set(updateData, { merge: true });
-        res.status(200).send({ message: 'Profile updated successfully' });
-    } catch (error) {
-        res.status(500).send({ error: error.message });
-    }
+    await userRef.set(updateData, { merge: true });
+    res.status(200).send({ message: 'Profile updated successfully' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 });
 
-// Get user data route (including mood data from latest summary)
-app.get('/user/:uid', async (req, res) => {
-    const { uid } = req.params;
-    try {
-        const userRef = db.collection('users').doc(uid);
-        const doc = await userRef.get();
-        if (!doc.exists) {
-            res.status(404).send({ error: 'User not found' });
-        } else {
-            const userData = doc.data();
-            res.status(200).send(userData);
-        }
-    } catch (error) {
-        res.status(500).send({ error: error.message });
+app.get('/get-summary/:uid', async (req, res) => {
+  const { uid } = req.params;
+  try {
+    const userRef = db.collection('users').doc(uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      res.status(404).send({ error: 'No summary found for this user.' });
+    } else {
+      res.status(200).send(doc.data());
     }
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+app.get('/user/:uid', async (req, res) => {
+  const { uid } = req.params;
+  try {
+    const userRef = db.collection('users').doc(uid);
+    const doc = await userRef.get();
+    if (!doc.exists) {
+      res.status(404).send({ error: 'User not found' });
+    } else {
+      const userData = doc.data();
+      res.status(200).send({ uid, ...userData });
+    }
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
 });
 
 app.listen(port, () => {
