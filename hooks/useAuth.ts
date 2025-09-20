@@ -36,7 +36,7 @@ export const useAuth = () => {
 
   const fetchUserProfile = async (uid: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/user/${uid}`)
+      const response = await fetch(`/api/user/${uid}`)
       if (response.ok) {
         const userData = await response.json()
         

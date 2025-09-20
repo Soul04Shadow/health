@@ -2,7 +2,7 @@ import { User } from "./types"
 
 export const login = async (email: string, password: string): Promise<User> => {
   try {
-    const response = await fetch("http://localhost:3000/login", {
+    const response = await fetch("/api/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -36,7 +36,7 @@ export const signup = async (formData: {
   gender: string
 }): Promise<User> => {
   try {
-    const response = await fetch("http://localhost:3000/signup", {
+    const response = await fetch("/api/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
@@ -63,7 +63,7 @@ export const signup = async (formData: {
 }
 export const getCurrentUser = async (uid: string): Promise<User> => {
   try {
-    const response = await fetch(`http://localhost:3000/user/${uid}`)
+    const response = await fetch(`/api/user/${uid}`)
     const data = await response.json()
 
     if (response.ok) {
