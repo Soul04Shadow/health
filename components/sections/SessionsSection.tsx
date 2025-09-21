@@ -25,9 +25,9 @@ export const SessionsSection: React.FC<SessionsSectionProps> = ({
       <div className="w-1/2">
         <Card className="h-full">
           <CardHeader>
-            <CardTitle className="text-2xl">Carel your AI guide</CardTitle>
+            <CardTitle className="text-2xl">Curie your AI guide</CardTitle>
             <CardDescription className="text-base">
-              Connect with Carel, your AI guide, for personalized support and
+              Connect with Curie, your AI guide, for personalized support and
               guidance.
             </CardDescription>
           </CardHeader>

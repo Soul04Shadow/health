@@ -8,13 +8,26 @@ interface HeroSectionProps {
 
 export default function Home({ onBeginJourney }: HeroSectionProps) {
   const [navbarBg, setNavbarBg] = useState("bg-transparent");
+  const [navbarOpacity, setNavbarOpacity] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > window.innerHeight) {
+      const scrollPosition = window.scrollY;
+      const halfViewportHeight = window.innerHeight / 2;
+      const fullViewportHeight = window.innerHeight;
+      
+      if (scrollPosition >= halfViewportHeight) {
+        // Calculate smooth opacity transition from half to full viewport height
+        const transitionProgress = Math.min(
+          (scrollPosition - halfViewportHeight) / (fullViewportHeight - halfViewportHeight), 
+          1
+        );
+        
         setNavbarBg("bg-orange-500/80 backdrop-blur-sm border rounded-4xl");
+        setNavbarOpacity(transitionProgress);
       } else {
         setNavbarBg("bg-transparent");
+        setNavbarOpacity(0);
       }
     };
 
@@ -46,13 +59,21 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
 
         {/* Navigation Bar */}
         <nav
-          className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 ${navbarBg} py-4 px-6 transition-all duration-300 ${
-            navbarBg.includes("bg-orange-500")
-              ? "w-auto max-w-2xl"
-              : "w-full max-w-none"
+          className={`fixed left-1/2 transform -translate-x-1/2 z-50 py-4 px-6 transition-all duration-500 ease-out ${
+            navbarOpacity > 0
+              ? "w-auto max-w-2xl top-2"
+              : "w-full max-w-none top-4"
           }`}
+          style={{
+            background: navbarOpacity > 0 
+              ? `rgba(249, 115, 22, ${0.8 * navbarOpacity})` 
+              : 'transparent',
+            backdropFilter: navbarOpacity > 0 ? 'blur(8px)' : 'none',
+            border: navbarOpacity > 0 ? `1px solid rgba(249, 115, 22, ${0.3 * navbarOpacity})` : 'none',
+            borderRadius: navbarOpacity > 0 ? '1rem' : '0',
+          }}
         >
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mx-20">
             {/* Logo */}
             <motion.div 
               whileHover={{ scale: 1.05 }}
@@ -60,13 +81,13 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="text-white font-bold text-2xl drop-shadow-lg pr-10 cursor-pointer transition-all duration-300 hover:text-orange-200"
+              className="text-white font-extrabold text-2xl drop-shadow-lg pr-6 cursor-pointer transition-all duration-300 hover:text-orange-200"
             >
               CureZ
             </motion.div>
 
             {/* Navigation Links */}
-            <div className="flex items-center gap-8 text-white/90 font-sans text-lg font-medium drop-shadow-md">
+            <div className="flex items-center gap-4 text-white/90 font-sans text-lg font-semibold drop-shadow-md">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}

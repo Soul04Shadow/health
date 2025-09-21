@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { User, DashboardPage, ViewType, MoodData, Exercise } from "../lib/types";
 import tips from "../lib/health-tips.json";
+import positiveTips from "../lib/positive-tips.json";
 import allExercises from "../lib/exercises.json";
 import { Sidebar } from "./Sidebar";
 import { DashboardHeader } from "./DashboardHeader";
@@ -74,6 +75,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [moodData, setMoodData] = useState<MoodData | null>(null);
   const [isLoadingMood, setIsLoadingMood] = useState(false);
   const [currentTip, setCurrentTip] = useState("");
+  const [positiveTip, setPositiveTip] = useState("");
   const [sessionSummary, setSessionSummary] = useState<any>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(false);
   const [suggestedExercises, setSuggestedExercises] = useState<Exercise[]>([]);
@@ -251,6 +253,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
       return () => clearInterval(timer);
     }, []);
 
+    useEffect(() => {
+      const randomIndex = Math.floor(Math.random() * positiveTips.length);
+      setPositiveTip(positiveTips[randomIndex].quote);
+    }, []);
+
   return (
     <div className="min-h-screen flex relative">
       {selectedExercise && (
@@ -279,6 +286,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             isLoadingMood={isLoadingMood}
             moodData={moodData}
             currentTip={currentTip}
+            positiveTip={positiveTip}
           />
         )}
 

@@ -1,3 +1,4 @@
+
 [
   {"id": 1, "tip": "Drink plenty of water throughout the day to stay hydrated."},
   {"id": 2, "tip": "Aim for 7-9 hours of quality sleep each night."},
@@ -28,5 +29,25 @@
   {"id": 27, "tip": "Stay organized to reduce stress and improve productivity."},
   {"id": 28, "tip": "Laugh more often; it's a great stress reliever."},
   {"id": 29, "tip": "Avoid smoking and limit alcohol consumption for better overall health."},
-  {"id": 30, "tip": "Practice self-compassion and be kind to yourself during challenging times."}
+  {"id": 30, "tip": "Practice self-compassion and be kind to yourself during challenging times."},
+  {"id": 31, "tip": "Chew your food slowly to aid digestion and prevent overeating."},
+  {"id": 32, "tip": "Keep a water bottle nearby as a reminder to stay hydrated."},
+  {"id": 33, "tip": "Incorporate healthy fats like avocado, nuts, and olive oil into your meals."},
+  {"id": 34, "tip": "Do a short stretch routine before bed to relax muscles and improve sleep quality."},
+  {"id": 35, "tip": "Keep healthy snacks on hand to avoid reaching for junk food when hungry."},
+  {"id": 36, "tip": "Track your mood and energy levels to understand what habits affect you positively."},
+  {"id": 37, "tip": "Practice proper portion control to avoid overeating."},
+  {"id": 38, "tip": "Incorporate probiotic-rich foods like yogurt or kefir for gut health."},
+  {"id": 39, "tip": "Take time to enjoy your meals without distractions like TV or phones."},
+  {"id": 40, "tip": "Do regular stretching or yoga to improve flexibility and prevent stiffness."},
+  {"id": 41, "tip": "Get some morning sunlight exposure to regulate your circadian rhythm."},
+  {"id": 42, "tip": "Incorporate colorful vegetables into every meal for a variety of nutrients."},
+  {"id": 43, "tip": "Balance work and rest — avoid burnout by scheduling downtime."},
+  {"id": 44, "tip": "Focus on quality sleep by keeping a consistent bedtime schedule."},
+  {"id": 45, "tip": "Practice mindful breathing during moments of stress."},
+  {"id": 46, "tip": "Replace sugary beverages with herbal teas or infused water."},
+  {"id": 47, "tip": "Set boundaries for work and personal time to support mental well-being."},
+  {"id": 48, "tip": "Spend time with pets or in nature to boost happiness."},
+  {"id": 49, "tip": "Take a tech-free hour each day to reset your mind."},
+  {"id": 50, "tip": "Do periodic self-reflection to track your growth and adjust habits."}
 ]
