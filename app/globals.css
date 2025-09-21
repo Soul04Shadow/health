@@ -153,4 +153,11 @@
   .animate-wave {
     animation: wave 1.2s infinite ease-in-out;
   }
+
+.ribeye-regular {
+  font-family: "Ribeye", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
 }

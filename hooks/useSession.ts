@@ -36,14 +36,16 @@ export const useSession = (
   }, [sessionActive])
 
   const initializeAudioClient = async () => {
+    if (!currentUser?.uid) {
+      throw new Error("User must be logged in to start a session")
+    }
+
     try {
       const { default: AudioClient } = await import("../lib/audio-client.js")
       const audioClient = new AudioClient()
 
       // Set the user ID before connecting
-      if (currentUser?.uid) {
-        audioClient.setUserId(currentUser.uid)
-      }
+      audioClient.setUserId(currentUser.uid)
 
       await audioClient.connect()
 
@@ -110,7 +112,7 @@ export const useSession = (
         currentResponseElement = null
       }
 
-      audioClientRef.current = audioClient
+      audioClientRef.current = audioClient as AudioClientType
     } catch (error) {
       console.error("Failed to initialize audio client:", error)
       setMessages((prev) => [
@@ -155,13 +157,7 @@ export const useSession = (
     }
     setSessionActive(false)
     setSessionSeconds(0)
-    setMessages((prev) => [
-      ...prev,
-      {
-        text: "Our session has ended. Remember to take care of yourself! 💙",
-        sender: "assistant",
-      },
-    ])
+    setMessages([]) // Clear conversation data
     // Note: setCurrentView("dashboard") will be handled in main component
   }
 

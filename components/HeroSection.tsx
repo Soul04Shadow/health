@@ -75,13 +75,13 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
         >
           <div className="flex justify-between items-center mx-20">
             {/* Logo */}
-            <motion.div 
+            <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="text-white font-extrabold text-2xl drop-shadow-lg pr-6 cursor-pointer transition-all duration-300 hover:text-orange-200"
+              className="text-white ribeye-regular text-3xl drop-shadow-lg pr-6 cursor-pointer transition-all duration-300 hover:text-orange-200"
             >
               CureZ
             </motion.div>

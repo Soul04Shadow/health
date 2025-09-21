@@ -63,7 +63,7 @@ export const Session: React.FC<SessionProps> = ({
             <div>
               <h2 className="font-bold text-foreground">CureZ</h2>
               <p className="text-xs text-muted-foreground">
-                {sessionActive ? formatTime(sessionSeconds) : "Connecting..."}
+                {sessionActive ? `Connected - ${formatTime(sessionSeconds)}` : "Connecting..."}
               </p>
             </div>
           </div>
@@ -74,18 +74,27 @@ export const Session: React.FC<SessionProps> = ({
 
         {/* Messages */}
         <div className="flex-grow p-4 overflow-y-auto space-y-3">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${
-                message.sender === "user"
-                  ? "ml-auto bg-primary text-primary-foreground rounded-br-md"
-                  : "mr-auto bg-muted text-muted-foreground rounded-bl-md"
-              }`}
-            >
-              {message.text}
+          {messages.length === 0 ? (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-muted-foreground text-center text-md">
+                Turn on the Mic and start speaking for initiating the session
+                or use the keyboard icon for text chat.
+              </p>
             </div>
-          ))}
+          ) : (
+            messages.map((message, index) => (
+              <div
+                key={index}
+                className={`max-w-[80%] p-3 rounded-2xl text-sm leading-relaxed ${
+                  message.sender === "user"
+                    ? "ml-auto bg-primary text-primary-foreground rounded-br-md"
+                    : "mr-auto bg-muted text-muted-foreground rounded-bl-md"
+                }`}
+              >
+                {message.text}
+              </div>
+            ))
+          )}
           <div ref={messagesEndRef} />
         </div>
 
