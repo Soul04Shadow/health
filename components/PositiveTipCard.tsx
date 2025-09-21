@@ -7,17 +7,15 @@ interface PositiveTipCardProps {
 
 export const PositiveTipCard: React.FC<PositiveTipCardProps> = ({ tip }) => {
   return (
-    <Card>
-      <CardContent >
-        <div className="flex items-center gap-3">
-          <CardTitle className="text-base font-semibold text-primary shrink-0">
-            Positive Tip:
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            "{tip}"
+    <div className="w-fit mx-auto">
+      <div className="py-4 px-6">
+        <div className="flex items-center gap-3 whitespace-nowrap">
+       
+            <p className="text-xl font-bold text-foreground">
+            {tip}
           </p>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

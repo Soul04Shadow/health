@@ -32,8 +32,8 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
 }) => {
   return (
     <div className="space-y-6">
-      <div className="flex justify-center items-center min-h-[120px]">
-        <div className="w-full md:w-2/3 lg:w-1/2">
+      <div className="flex justify-center items-center min-h-[120px] w-full">
+        <div className="flex justify-center w-full">
           <PositiveTipCard tip={positiveTip} />
         </div>
       </div>
@@ -228,8 +228,8 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
             </CardContent>
           </Card>
           <Card className="bg-gradient-to-br from-primary/10 to-secondary/10 border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-xl">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center space-x-2 text-xl">
                 <Heart className="h-7 w-7 text-primary" />
                 <span>How are you feeling today?</span>
               </CardTitle>
@@ -238,7 +238,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                 support.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="text-center">
               <Button
                 onClick={() => setCurrentView("session")}
                 className="w-full h-16 text-xl font-semibold"
