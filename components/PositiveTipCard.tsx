@@ -10,10 +10,7 @@ export const PositiveTipCard: React.FC<PositiveTipCardProps> = ({ tip }) => {
     <div className="w-fit mx-auto">
       <div className="py-4 px-6">
         <div className="flex items-center gap-3 whitespace-nowrap">
-       
-            <p className="text-xl font-bold text-foreground">
-            {tip}
-          </p>
+            <p className="text-xl font-bold text-foreground">{tip}</p>
         </div>
       </div>
     </div>

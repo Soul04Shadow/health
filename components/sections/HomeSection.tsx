@@ -6,7 +6,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Heart, Brain, Activity } from "lucide-react";
+import {   MessageCircle,
+  Heart,
+  Brain,
+  Activity,
+  MoonStar,
+  Users,
+  Dumbbell,
+  Gauge,
+  Target,
+  Sparkles, } from "lucide-react";
 import {
   ResponsiveContainer,
   PieChart,
@@ -30,6 +39,32 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
   currentTip,
   positiveTip,
 }) => {
+   const formatHours = (hours: number | null | undefined) => {
+    if (hours === null || hours === undefined || Number.isNaN(hours)) {
+      return "Not available";
+    }
+    if (hours === 0) {
+      return "0 hrs";
+    }
+    const rounded = Math.round(hours * 10) / 10;
+    return `${rounded} hrs`;
+  };
+
+  const formatNumber = (value: number | null | undefined, suffix = "%") => {
+    if (value === null || value === undefined || Number.isNaN(value)) {
+      return "Not available";
+    }
+    // Ensure the value is within valid range (0-100 for percentages)
+    const clampedValue = suffix === "%" ? Math.max(0, Math.min(100, value)) : value;
+    return `${Math.round(clampedValue)}${suffix}`;
+  };
+
+  const formatText = (value: string | null | undefined) => {
+    if (!value) {
+      return "Not available";
+    }
+    return value;
+  };
   return (
     <div className="space-y-6">
       <div className="flex justify-center items-center min-h-[120px] w-full">
@@ -56,143 +91,231 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                   <p className="mt-2 text-sm text-muted-foreground">Loading mood data...</p>
                 </div>
               ) : moodData ? (
-                <div className="space-y-6">
-                  {/* Mood Overview */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary">
-                        {moodData.mood}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Current Mood
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-secondary">
-                        {moodData.mood_percentage}%
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Mood Score
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-600">
-                        {moodData.energy_level}%
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Energy Level
-                      </div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-red-600">
-                        {moodData.stress_level}%
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Stress Level
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Energy and Stress Level Half Doughnut Charts */}
+                <div className="space-y-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Energy Level Chart */}
-                    <div className="flex flex-col items-center">
-                      <div className="relative mb-2">
-                        <ResponsiveContainer width={150} height={150}>
-                          <PieChart>
-                            <Pie
-                              data={[
-                                {
-                                  name: "Energy",
-                                  value: moodData.energy_level,
-                                  fill: "#10b981",
-                                },
-                                {
-                                  name: "Remaining",
-                                  value: 100 - moodData.energy_level,
-                                  fill: "#e5e7eb",
-                                },
-                              ]}
-                              cx="50%"
-                              cy="50%"
-                              startAngle={180}
-                              endAngle={0}
-                              innerRadius={45}
-                              outerRadius={70}
-                              paddingAngle={0}
-                              dataKey="value"
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
-                        {/* Center Text */}
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="text-center">
-                            <div className="text-2xl font-bold text-green-600">
-                              {moodData.energy_level}%
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Energy
-                            </div>
+                    <div className="space-y-6">
+                      {/* Mood Overview */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-orange-500">
+                            {moodData.mood}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Current Mood
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-orange-500">
+                            {formatNumber(moodData.mood_percentage, "%")}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Mood Score
                           </div>
                         </div>
                       </div>
-                      <div className="text-center">
-                        <div className="text-sm font-medium text-green-700">
-                          {moodData.mood_stability}
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Energy Level Chart */}
+                        <div className="flex flex-col items-center">
+                          <div className="relative mb-2">
+                            <ResponsiveContainer width={150} height={150}>
+                              <PieChart>
+                                <Pie
+                                  data={[
+                                    {
+                                      name: "Energy",
+                                      value: Math.max(0, Math.min(100, moodData.energy_level || 0)),
+                                      fill: "#f97316",
+                                    },
+                                    {
+                                      name: "Remaining",
+                                      value: 100 - Math.max(0, Math.min(100, moodData.energy_level || 0)),
+                                      fill: "#e5e7eb",
+                                    },
+                                  ]}
+                                  cx="50%"
+                                  cy="50%"
+                                  startAngle={180}
+                                  endAngle={0}
+                                  innerRadius={45}
+                                  outerRadius={70}
+                                  paddingAngle={0}
+                                  dataKey="value"
+                                />
+                              </PieChart>
+                            </ResponsiveContainer>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-orange-500">
+                                  {formatNumber(moodData.energy_level, "%")}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Energy
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-orange-500">
+                              {moodData.mood_stability}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Stability
+                            </div>
+                          </div>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          Stability
+
+                        {/* Stress Level Chart */}
+                        <div className="flex flex-col items-center">
+                          <div className="relative mb-2">
+                            <ResponsiveContainer width={150} height={150}>
+                              <PieChart>
+                                <Pie
+                                  data={[
+                                    {
+                                      name: "Stress",
+                                      value: Math.max(0, Math.min(100, moodData.stress_level || 0)),
+                                      fill: "#f97316",
+                                    },
+                                    {
+                                      name: "Remaining",
+                                      value: 100 - Math.max(0, Math.min(100, moodData.stress_level || 0)),
+                                      fill: "#e5e7eb",
+                                    },
+                                  ]}
+                                  cx="50%"
+                                  cy="50%"
+                                  startAngle={180}
+                                  endAngle={0}
+                                  innerRadius={45}
+                                  outerRadius={70}
+                                  paddingAngle={0}
+                                  dataKey="value"
+                                />
+                              </PieChart>
+                            </ResponsiveContainer>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-orange-500">
+                                  {formatNumber(moodData.stress_level, "%")}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Stress
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-orange-500">
+                              {moodData.mood_calmness}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Calmness
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
-
-                    {/* Stress Level Chart */}
-                    <div className="flex flex-col items-center">
-                      <div className="relative mb-2">
-                        <ResponsiveContainer width={150} height={150}>
-                          <PieChart>
-                            <Pie
-                              data={[
-                                {
-                                  name: "Stress",
-                                  value: moodData.stress_level,
-                                  fill: "#ef4444",
-                                },
-                                {
-                                  name: "Remaining",
-                                  value: 100 - moodData.stress_level,
-                                  fill: "#e5e7eb",
-                                },
-                              ]}
-                              cx="50%"
-                              cy="50%"
-                              startAngle={180}
-                              endAngle={0}
-                              innerRadius={45}
-                              outerRadius={70}
-                              paddingAngle={0}
-                              dataKey="value"
-                            />
-                          </PieChart>
-                        </ResponsiveContainer>
-                        {/* Center Text */}
-                        <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="space-y-6">
+                      {/* Cognitive & Emotional Metrics */}
+                      <div className="grid grid-cols-2 gap-4">
+                        {/* Cognitive Score Chart */}
+                        <div className="flex flex-col items-center">
+                          <div className="relative mb-2">
+                            <ResponsiveContainer width={150} height={150}>
+                              <PieChart>
+                                <Pie
+                                  data={[
+                                  {
+                                    name: "Cognitive",
+                                    value: Math.max(0, Math.min(100, moodData?.cognitive_score || 0)),
+                                    fill: "#f97316",
+                                  },
+                                  {
+                                    name: "Remaining",
+                                    value: 100 - Math.max(0, Math.min(100, moodData?.cognitive_score || 0)),
+                                    fill: "#e5e7eb",
+                                  },
+                                  ]}
+                                  cx="50%"
+                                  cy="50%"
+                                  startAngle={180}
+                                  endAngle={0}
+                                  innerRadius={45}
+                                  outerRadius={70}
+                                  paddingAngle={0}
+                                  dataKey="value"
+                                />
+                              </PieChart>
+                            </ResponsiveContainer>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-orange-500">
+                                  {formatNumber(moodData.cognitive_score, "%")}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Cognitive
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                           <div className="text-center">
-                            <div className="text-2xl font-bold text-red-600">
-                              {moodData.stress_level}%
+                            <div className="text-sm font-medium text-orange-500">
+                              {moodData.focus_level}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              Stress
+                              Focus
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-sm font-medium text-blue-700">
-                          {moodData.mood_calmness}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Calmness
+
+                        {/* Emotional Score Chart */}
+                        <div className="flex flex-col items-center">
+                          <div className="relative mb-2">
+                            <ResponsiveContainer width={150} height={150}>
+                              <PieChart>
+                                <Pie
+                                  data={[
+                                  {
+                                    name: "Emotional",
+                                    value: Math.max(0, Math.min(100, moodData?.emotional_score || 0)),
+                                    fill: "#f97316",
+                                  },
+                                  {
+                                    name: "Remaining",
+                                    value: 100 - Math.max(0, Math.min(100, moodData?.emotional_score || 0)),
+                                    fill: "#e5e7eb",
+                                  },
+                                  ]}
+                                  cx="50%"
+                                  cy="50%"
+                                  startAngle={180}
+                                  endAngle={0}
+                                  innerRadius={45}
+                                  outerRadius={70}
+                                  paddingAngle={0}
+                                  dataKey="value"
+                                />
+                              </PieChart>
+                            </ResponsiveContainer>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="text-center">
+                                <div className="text-2xl font-bold text-orange-500">
+                                  {formatNumber(moodData.emotional_score, "%")}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  Emotional
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-sm font-medium text-orange-500">
+                              {moodData.mood_calmness}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              Calmness
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

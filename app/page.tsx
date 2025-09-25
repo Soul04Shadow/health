@@ -15,6 +15,14 @@ export default function CureZ() {
   const session = useSession(auth.currentUser, setMessages)
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const view = urlParams.get("view")
+    if (view === "auth") {
+      auth.setCurrentView("auth")
+    }
+  }, [])
+
+  useEffect(() => {
     if (auth.currentView === "session" && !session.audioClientRef.current) {
       session.initializeAudioClient()
     }

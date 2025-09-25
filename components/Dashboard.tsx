@@ -197,13 +197,41 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }
 
         if (latestSummary && latestSummary.mood) {
-          const moodDataObj = {
+          const parseToNumberOrNull = (value: any): number | null => {
+            if (typeof value === "number") {
+              return value;
+            }
+            if (typeof value === "string") {
+              const parsed = Number.parseFloat(value);
+              return Number.isNaN(parsed) ? null : parsed;
+            }
+            return null;
+          };
+
+          const moodDataObj: MoodData = {
             mood: latestSummary.mood,
             mood_percentage: latestSummary.mood_percentage || 0,
             energy_level: latestSummary.energy_level || 0,
             stress_level: latestSummary.stress_level || 0,
             mood_stability: latestSummary.mood_stability || "Unknown",
             mood_calmness: latestSummary.mood_calmness || "Unknown",
+            cognitive_score: latestSummary.cognitive_score || 0,
+            emotional_score: latestSummary.emotional_score || 0,
+            sleep_quality: latestSummary.sleep_quality ?? null,
+            sleep_duration_hours: parseToNumberOrNull(
+              latestSummary.sleep_duration_hours
+            ),
+            social_connection_level:
+              latestSummary.social_connection_level ?? null,
+            social_interaction_log: latestSummary.social_interaction_log ?? null,
+            physical_activity_minutes: parseToNumberOrNull(
+              latestSummary.physical_activity_minutes
+            ),
+            physical_activity_summary:
+              latestSummary.physical_activity_summary ?? null,
+            anxiety_level: parseToNumberOrNull(latestSummary.anxiety_level),
+            focus_level: latestSummary.focus_level ?? null,
+            positive_event: latestSummary.positive_event ?? null,
             generated_at_utc:
               latestSummary.generated_at_utc || new Date().toISOString(),
           };

@@ -4,6 +4,79 @@ import base64
 import os
 import requests
 from datetime import datetime, timezone
+def extract_json(text: str) -> dict:
+    """Best-effort extraction of a JSON object from model output."""
+    if not text:
+        return {"raw": ""}
+    try:
+        return json.loads(text)
+    except Exception:
+        pass
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        candidate = text[start:end + 1]
+        try:
+            return json.loads(candidate)
+        except Exception:
+            pass
+    return {"raw": text.strip()}
+
+def validate_mood_scores(summary_obj: dict) -> dict:
+    """Validate and correct mood scores to ensure they're within valid ranges."""
+    if not isinstance(summary_obj, dict):
+        return summary_obj
+    
+    # Define validation rules for each score field
+    score_fields = {
+        'mood_percentage': (0, 100),  # 0-100 scale (no negative values)
+        'energy_level': (0, 100),
+        'stress_level': (0, 100),
+        'cognitive_score': (0, 100),
+        'emotional_score': (0, 100),
+        'anxiety_level': (0, 100),
+        'physical_activity_minutes': (0, None),  # No upper limit for minutes
+    }
+    
+    # Validate and clamp scores
+    for field, (min_val, max_val) in score_fields.items():
+        if field in summary_obj and summary_obj[field] is not None:
+            try:
+                score = float(summary_obj[field])
+                
+                # Apply minimum constraint
+                if score < min_val:
+                    logger.warning(f"Clamping {field} from {score} to {min_val} (minimum)")
+                    score = min_val
+                
+                # Apply maximum constraint if specified
+                if max_val is not None and score > max_val:
+                    logger.warning(f"Clamping {field} from {score} to {max_val} (maximum)")
+                    score = max_val
+                
+                # Round to nearest integer for percentage scores
+                if field.endswith('_level') or field.endswith('_score') or field.endswith('_percentage'):
+                    summary_obj[field] = round(score)
+                else:
+                    summary_obj[field] = score
+                    
+            except (ValueError, TypeError):
+                logger.warning(f"Invalid {field} value: {summary_obj[field]}, setting to 0")
+                summary_obj[field] = 0
+    
+    # Special validation for sleep duration (should be reasonable)
+    if 'sleep_duration_hours' in summary_obj and summary_obj['sleep_duration_hours'] is not None:
+        try:
+            hours = float(summary_obj['sleep_duration_hours'])
+            if hours < 0:
+                summary_obj['sleep_duration_hours'] = 0
+            elif hours > 24:  # Cap at 24 hours
+                summary_obj['sleep_duration_hours'] = 24
+        except (ValueError, TypeError):
+            summary_obj['sleep_duration_hours'] = None
+    
+    return summary_obj
+
 
 # Import Google Generative AI components
 from google import genai
@@ -584,11 +657,22 @@ class LiveAPIWebSocketServer:
             "main_points": [],
             "emotions_themes": [],
             "mood": "",
-            "mood_percentage": 0,  # -100 to 100 scale (negative = negative mood, positive = positive mood)
+            "mood_percentage": 0,  # 0-100 scale (0 = very poor mood, 100 = excellent mood)
             "energy_level": 0,  # 0-100 scale (0 = very low energy, 100 = very high energy)
             "stress_level": 0,  # 0-100 scale (0 = no stress, 100 = extreme stress)
             "mood_stability": "",  # e.g., "stable", "fluctuating", "improving"
             "mood_calmness": "",  # e.g., "calm", "anxious", "agitated"
+            "cognitive_score": 0,  # 0-100 scale
+            "emotional_score": 0,  # 0-100 scale
+             "sleep_quality": None,  # e.g., "Rested", "Okay", "Exhausted"
+            "sleep_duration_hours": None,  # numeric hours slept (allow decimals)
+            "social_connection_level": None,  # e.g., "Feeling Connected", "Feeling Isolated"
+            "social_interaction_log": None,  # yes/no or note on interactions
+            "physical_activity_minutes": None,  # minutes of movement (0 if none)
+            "physical_activity_summary": None,  # short descriptor of activity effort
+            "anxiety_level": None,  # 0-100 scale distinct from stress
+            "focus_level": None,  # e.g., "Focused", "Distracted"
+            "positive_event": None,  # gratitude or positive highlight
             "stressors": [],
             "protective_factors": [],
             "coping_strategies_discussed": [],
@@ -612,17 +696,36 @@ class LiveAPIWebSocketServer:
             "If a previous summary is provided, analyze the user's progress over time in the 'progress_analysis' field. "
             "Infer language if not explicit. "
             "Analyze the overall mood of the user based on their messages and provide: "
-            "- A brief description in the 'mood' field (e.g., positive, neutral, anxious, hopeful). "
-            "- A mood percentage on a scale of -100 to 100 in the 'mood_percentage' field (negative for negative mood, positive for positive mood, 0 for neutral). "
+            "- A brief description in the 'mood' field (e.g., positive, neutral, anxious, hopeful, struggling, resilient). "
+            "- A mood percentage on a scale of 0-100 in the 'mood_percentage' field (0 = very poor mood/distressed, 100 = excellent mood/thriving). "
+            "  IMPORTANT: Consider ALL factors when calculating mood percentage - stress, energy, behavioral lifestyle metrics, protective factors, and overall functioning. "
+            "  Use the holistic scoring guidelines: Factor in conversational tone (30%), stress levels (25%), energy levels (20%), behavioral metrics (15%), and cognitive functioning (10%). "
+            "  The mood percentage should NEVER be negative and must be between 0-100. "
             "- An energy level on a scale of 0-100 in the 'energy_level' field (0 = very low energy, 100 = very high energy). "
             "- A stress level on a scale of 0-100 in the 'stress_level' field (0 = no stress, 100 = extreme stress). "
             "- Mood stability assessment in the 'mood_stability' field (e.g., stable, fluctuating, improving, declining). "
             "- Mood calmness level in the 'mood_calmness' field (e.g., calm, anxious, agitated, relaxed). "
+            "- A 'cognitive_score' on a 0-100 scale, derived from the user's focus level, clarity of thought, and problem-solving mentions. "
+            "- An 'emotional_score' on a 0-100 scale, based on mood calmness, stability, and emotional articulation. "
+                "Capture lifestyle patterns by filling the behavioral metrics: "
+            "- 'sleep_quality' as a short descriptor like Rested/Okay/Exhausted and 'sleep_duration_hours' as a numeric value. "
+            "- 'social_connection_level' describing their connected vs. isolated feelings and 'social_interaction_log' as a yes/no or short note. "
+            "- 'physical_activity_minutes' representing minutes moved (0 if none) and 'physical_activity_summary' with a short description of the movement effort. "
+            "Document cognitive and emotional granularity: "
+            "- 'anxiety_level' on a 0-100 scale distinct from stress (0 = no anxiety, 100 = extreme anxiety). "
+            "- 'focus_level' describing their concentration (e.g., Focused, Distracted, Scattered). "
+            "- 'positive_event' capturing a gratitude or positive moment noted by the user. "
+            "Use the behavioral and cognitive metrics (sleep quality, social connection, physical activity), along with mood, energy, and stress, when estimating 'mood_percentage'. "
+            "Apply holistic scoring: Start with a base score from conversational tone, then adjust based on stress levels, energy levels, behavioral metrics, and cognitive functioning. "
+            "Consider protective factors like support systems, coping strategies, and resilience indicators when determining the final mood percentage. "
+            "Remember: mood_percentage must be 0-100 (never negative), representing overall mental wellness state, not just immediate emotional expression. "
+            "If information is not provided, set the corresponding field to null. "
             "Fill the provided JSON schema faithfully and only return the JSON object.\n\n"
             f"PREVIOUS_SUMMARY:\n{previous_summary}\n\n"
             f"JSON_SCHEMA_EXAMPLE:\n{json.dumps(schema_hint, ensure_ascii=False, indent=2)}\n\n"
             f"TRANSCRIPT:\n{flat_transcript}"
         )
+
 
         # Pick a compatible model for generateContent (avoids INVALID_ARGUMENT)
         summarizer_model = pick_summarizer_model(MODEL)
@@ -657,7 +760,10 @@ class LiveAPIWebSocketServer:
 
         logger.info(f"Raw AI response: {text}")
         summary_obj = extract_json(text) if text else {"raw": ""}
-        logger.info(f"Parsed summary object: {json.dumps(summary_obj, indent=2)}")
+        
+        # Validate and correct mood scores
+        summary_obj = validate_mood_scores(summary_obj)
+        logger.info(f"Parsed and validated summary object: {json.dumps(summary_obj, indent=2)}")
 
         # Send to Node.js backend
         try:
