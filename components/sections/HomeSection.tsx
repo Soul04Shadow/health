@@ -41,7 +41,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
   positiveTip,
 }) => {
   const { t } = useTranslation();
-   const formatHours = (hours: number | null | undefined) => {
+  const formatHours = (hours: number | null | undefined) => {
     if (hours === null || hours === undefined || Number.isNaN(hours)) {
       return t("home_notAvailable");
     }

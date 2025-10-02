@@ -1,5 +1,6 @@
 import { User, DashboardPage } from "../lib/types";
 import { useTranslation } from "@/hooks/useTranslation";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface DashboardHeaderProps {
   dashboardPage: DashboardPage;
@@ -45,7 +46,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   const { t, setLanguage, language } = useTranslation();
   const headerDetails = getHeaderDetails(
     dashboardPage,
-    currentUserName || currentUser?.email?.split("@")[0] || "User",
+    currentUserName || "User",
     t
   );
 
@@ -59,6 +60,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {headerDetails.description}
         </p>
       </div>
+      <LanguageSwitcher />
     </header>
   );
 };

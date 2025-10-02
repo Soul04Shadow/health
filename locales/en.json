@@ -77,6 +77,8 @@
   "auth_verificationNotice": "We will send a verification link to your email via Firebase Authentication. Please verify before logging in.",
   "auth_creatingAccount": "Creating account...",
   "auth_createAccount": "Create Account",
+  "auth_phoneNumber": "Enter your phone number",
+  "auth_sendOtp": "Send OTP",
 
   "dashboard_fillFields": "Please fill in at least one field before saving.",
   "dashboard_profileUpdated": "Profile updated successfully!",

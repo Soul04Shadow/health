@@ -2,26 +2,17 @@ import { ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { languages } from "@/lib/languages";
-import { Input } from "@/components/ui/input";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 interface HeroSectionProps {
   onBeginJourney: () => void;
 }
 
 export default function Home({ onBeginJourney }: HeroSectionProps) {
-  const { t, setLanguage, language } = useTranslation();
+  const { t } = useTranslation();
   const [navbarBg, setNavbarBg] = useState("bg-transparent");
   const [navbarOpacity, setNavbarOpacity] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     setIsMounted(true);
@@ -102,30 +93,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
 
             {/* Navigation Links */}
             <div className="flex items-center gap-4 text-white/90 font-sans text-lg font-semibold drop-shadow-md">
-              {isMounted && (
-                <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <Input
-                      placeholder="Search language..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="mb-2"
-                    />
-                    {languages
-                      .filter((lang) =>
-                        lang.name.toLowerCase().includes(searchTerm.toLowerCase())
-                      )
-                      .map((lang) => (
-                        <SelectItem key={lang.code} value={lang.code}>
-                          {lang.name}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              )}
+              {isMounted && <LanguageSwitcher />}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}

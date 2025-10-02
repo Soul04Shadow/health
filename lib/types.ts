@@ -18,7 +18,7 @@ export interface AudioClientType {
 
 export interface User {
   uid: string
-  email: string
+  phoneNumber: string
   name?: string
   age?: number
   gender?: string

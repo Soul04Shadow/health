@@ -1,5 +1,6 @@
 "use client"
 
+
 import { useEffect } from "react"
 import { Auth } from "../components/Auth"
 import { Dashboard } from "../components/Dashboard"
@@ -40,25 +41,17 @@ export default function CureZ() {
       <Auth
         authMode={auth.authMode}
         setAuthMode={auth.setAuthMode}
-        loginForm={auth.loginForm}
-        setLoginForm={auth.setLoginForm}
         signupForm={auth.signupForm}
         setSignupForm={auth.setSignupForm}
-        handleLogin={auth.handleLogin}
-        handleSignup={auth.handleSignup}
-        isLoggingIn={auth.isLoggingIn}
-        isSigningUp={auth.isSigningUp}
-        forgotPasswordMode={auth.forgotPasswordMode}
-        setForgotPasswordMode={auth.setForgotPasswordMode}
-        forgotPasswordEmail={auth.forgotPasswordEmail}
-        setForgotPasswordEmail={auth.setForgotPasswordEmail}
-        isSendingResetEmail={auth.isSendingResetEmail}
-        resetEmailSentTo={auth.resetEmailSentTo}
-        handleRequestPasswordReset={auth.handleRequestPasswordReset}
-        signupVerificationEmail={auth.signupVerificationEmail}
-        unverifiedLoginEmail={auth.unverifiedLoginEmail}
+        otp={auth.otp}
+        setOtp={auth.setOtp}
+        handleSendOtp={auth.handleSendOtp}
+        handleVerifyOtp={auth.handleVerifyOtp}
+        isSendingOtp={auth.isSendingOtp}
+        isVerifyingOtp={auth.isVerifyingOtp}
+        confirmationResult={auth.confirmationResult}
       />
-    )
+    );
   }
 
   if (auth.currentView === "dashboard") {
@@ -100,5 +93,5 @@ export default function CureZ() {
     return <Landing onBeginJourney={() => auth.setCurrentView("auth")} />
   }
 
-  return null
+  return null;
 }
