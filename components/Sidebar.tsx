@@ -11,6 +11,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { DashboardPage } from "../lib/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface SidebarProps {
   dashboardPage: DashboardPage;
@@ -25,14 +26,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   handleLogout,
   onNavigateToLanding,
 }) => {
+  const { t } = useTranslation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
 
   const navItems = [
-    { id: "home", label: "Home", icon: Home },
-    { id: "sessions", label: "AI Session", icon: MessageCircle },
-    { id: "resources", label: "Resources", icon: BookOpen },
-    { id: "profile", label: "Profile", icon: UserIcon },
+    { id: "home", label: t("sidebar_home"), icon: Home },
+    { id: "sessions", label: t("sidebar_aiSession"), icon: MessageCircle },
+    { id: "resources", label: t("sidebar_resources"), icon: BookOpen },
+    { id: "profile", label: t("sidebar_profile"), icon: UserIcon },
   ];
 
   const sidebarContent = (isCollapsed: boolean) => (
@@ -50,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="text-2xl font-bold text-foreground cursor-pointer hover:text-primary transition-colors"
               onClick={onNavigateToLanding}
             >
-              CureZ
+              {t("sidebar_cureZ")}
             </h1>
           </div>
         )}
@@ -76,10 +78,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         variant="ghost"
         onClick={handleLogout}
         className={`w-full justify-start text-lg h-12 mt-auto ${isCollapsed ? 'justify-center' : ''}`}
-        title={isCollapsed ? 'Logout' : undefined}
+        title={isCollapsed ? t("sidebar_logout") : undefined}
       >
         <LogOut className={`h-5 w-5 ${isCollapsed ? '' : 'mr-3'}`} />
-        {!isCollapsed && 'Logout'}
+        {!isCollapsed && t("sidebar_logout")}
       </Button>
     </div>
   );

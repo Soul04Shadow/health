@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import { MoodData, ViewType } from "../../lib/types";
 import { PositiveTipCard } from "../PositiveTipCard";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface HomeSectionProps {
   setCurrentView: (view: ViewType) => void;
@@ -39,20 +40,21 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
   currentTip,
   positiveTip,
 }) => {
+  const { t } = useTranslation();
    const formatHours = (hours: number | null | undefined) => {
     if (hours === null || hours === undefined || Number.isNaN(hours)) {
-      return "Not available";
+      return t("home_notAvailable");
     }
     if (hours === 0) {
-      return "0 hrs";
+      return `0${t("home_hours")}`;
     }
     const rounded = Math.round(hours * 10) / 10;
-    return `${rounded} hrs`;
+    return `${rounded}${t("home_hours")}`;
   };
 
   const formatNumber = (value: number | null | undefined, suffix = "%") => {
     if (value === null || value === undefined || Number.isNaN(value)) {
-      return "Not available";
+      return t("home_notAvailable");
     }
     // Ensure the value is within valid range (0-100 for percentages)
     const clampedValue = suffix === "%" ? Math.max(0, Math.min(100, value)) : value;
@@ -61,7 +63,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
 
   const formatText = (value: string | null | undefined) => {
     if (!value) {
-      return "Not available";
+      return t("home_notAvailable");
     }
     return value;
   };
@@ -78,17 +80,17 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-xl">
                 <Brain className="h-6 w-6 text-secondary" />
-                <span>Mood Analytics</span>
+                <span>{t("home_moodAnalytics")}</span>
               </CardTitle>
               <CardDescription className="text-base">
-                Your emotional wellness insights from recent sessions
+                {t("home_moodAnalyticsDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {isLoadingMood ? (
                 <div className="flex items-center justify-center h-32">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                  <p className="mt-2 text-sm text-muted-foreground">Loading mood data...</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{t("home_loadingMood")}</p>
                 </div>
               ) : moodData ? (
                 <div className="space-y-8">
@@ -101,7 +103,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                             {moodData.mood}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            Current Mood
+                            {t("home_currentMood")}
                           </div>
                         </div>
                         <div className="text-center">
@@ -109,7 +111,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                             {formatNumber(moodData.mood_percentage, "%")}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            Mood Score
+                            {t("home_moodScore")}
                           </div>
                         </div>
                       </div>
@@ -149,7 +151,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                                   {formatNumber(moodData.energy_level, "%")}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  Energy
+                                  {t("home_energy")}
                                 </div>
                               </div>
                             </div>
@@ -159,7 +161,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                               {moodData.mood_stability}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              Stability
+                              {t("home_stability")}
                             </div>
                           </div>
                         </div>
@@ -199,7 +201,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                                   {formatNumber(moodData.stress_level, "%")}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  Stress
+                                  {t("home_stress")}
                                 </div>
                               </div>
                             </div>
@@ -209,7 +211,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                               {moodData.mood_calmness}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              Calmness
+                              {t("home_calmness")}
                             </div>
                           </div>
                         </div>
@@ -253,7 +255,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                                   {formatNumber(moodData.cognitive_score, "%")}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  Cognitive
+                                  {t("home_cognitive")}
                                 </div>
                               </div>
                             </div>
@@ -263,7 +265,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                               {moodData.focus_level}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              Focus
+                              {t("home_focus")}
                             </div>
                           </div>
                         </div>
@@ -303,7 +305,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                                   {formatNumber(moodData.emotional_score, "%")}
                                 </div>
                                 <div className="text-xs text-muted-foreground">
-                                  Emotional
+                                  {t("home_emotional")}
                                 </div>
                               </div>
                             </div>
@@ -313,7 +315,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                               {moodData.mood_calmness}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              Calmness
+                              {t("home_calmness")}
                             </div>
                           </div>
                         </div>
@@ -325,14 +327,14 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                 <div className="text-center py-8">
                   <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">
-                    Complete a session to see your mood analytics
+                    {t("home_completeSession")}
                   </p>
                   <Button
                     onClick={() => setCurrentView("session")}
                     className="mt-4"
                     size="sm"
                   >
-                    Start Session
+                    {t("home_startSession")}
                   </Button>
                 </div>
               )}
@@ -342,7 +344,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
         <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Quick Tip</CardTitle>
+              <CardTitle>{t("home_quickTip")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
@@ -354,11 +356,10 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
             <CardHeader className="text-center">
               <CardTitle className="flex items-center justify-center space-x-2 text-xl">
                 <Heart className="h-7 w-7 text-primary" />
-                <span>How are you feeling today?</span>
+                <span>{t("home_howFeeling")}</span>
               </CardTitle>
               <CardDescription className="text-base">
-                Start a conversation with Curie, your AI guide, anytime you need
-                support.
+                {t("home_howFeelingDesc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="text-center">
@@ -367,7 +368,7 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
                 className="w-full h-16 text-xl font-semibold"
               >
                 <MessageCircle className="h-6 w-6 mr-3" />
-                Start AI Session
+                {t("home_startAiSession")}
               </Button>
             </CardContent>
           </Card>

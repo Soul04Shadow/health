@@ -2,8 +2,10 @@ import {
   Brain,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="relative z-10 pt-16 pb-0 bg-gradient-to-b from-orange-50/50 via-white to-orange-50/30 mt-auto overflow-hidden w-full">
       {/* Background decorative elements */}
@@ -31,16 +33,14 @@ export default function Footer() {
                 <Brain className="w-8 h-8 text-primary" />
               </div>
               <span className="text-3xl font-bold text-primary">
-                CureZ
+                {t("footer_cureZ")}
               </span>
             </motion.div>
             
             {/* Description */}
             <div className="flex-1 max-w-2xl mx-8 mt-4 md:mt-0">
               <p className="text-muted-foreground leading-relaxed text-pretty text-center md:text-left">
-                Your AI-powered companion for mental wellness. We're committed
-                to supporting young people with personalized, accessible mental
-                health resources and guidance.
+                {t("footer_description")}
               </p>
             </div>
           </div>
@@ -49,10 +49,10 @@ export default function Footer() {
           <div className="border-t border-border/50 pt-8">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-muted-foreground text-sm">
-                © 2025 CureZ. Powered by GenAI for Mental Wellness.
+                {t("footer_copyright")}
               </p>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span>Made with Respect and Care for mental wellness</span>
+                <span>{t("footer_madeWith")}</span>
               </div>
             </div>
           </div>

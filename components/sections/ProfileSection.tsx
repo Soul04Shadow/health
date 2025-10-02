@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { Edit, Check, X } from "lucide-react";
 import { User } from "../../lib/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface ProfileSectionProps {
   currentUser: User | null;
@@ -46,29 +47,30 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
   handleCancel,
   isLoading,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)] p-6">
       <Card className="max-w-2xl w-full">
         <CardHeader>
-          <CardTitle>Profile Settings</CardTitle>
+          <CardTitle>{t("profile_settings")}</CardTitle>
           <CardDescription>
-            Manage your personal information
+            {t("profile_manage")}
           </CardDescription>
         </CardHeader>
       <CardContent className="space-y-4">
         <div>
-          <label className="text-sm font-medium">Name</label>
+          <label className="text-sm font-medium">{t("profile_name")}</label>
           <Input
             value={isEditing ? editedName : (currentUser?.name || "")}
             onChange={(e) => setEditedName(e.target.value)}
             className="mt-1"
             readOnly={!isEditing}
-            placeholder={!isEditing ? "No name provided" : "Enter your name"}
+            placeholder={!isEditing ? t("profile_noName") : t("profile_enterName")}
           />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-sm font-medium">Age</label>
+            <label className="text-sm font-medium">{t("profile_age")}</label>
             <Input
               type="number"
               min="13"
@@ -77,25 +79,25 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
               onChange={(e) => setEditedAge(e.target.value)}
               className="mt-1"
               readOnly={!isEditing}
-              placeholder={!isEditing ? "No age provided" : "Enter your age"}
+              placeholder={!isEditing ? t("profile_noAge") : t("profile_enterAge")}
             />
           </div>
           <div>
-            <label className="text-sm font-medium">Gender</label>
+            <label className="text-sm font-medium">{t("profile_gender")}</label>
             {isEditing ? (
               <Select
                 value={editedGender}
                 onValueChange={setEditedGender}
               >
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select gender" />
+                  <SelectValue placeholder={t("profile_selectGender")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="non-binary">Non-binary</SelectItem>
+                  <SelectItem value="male">{t("auth_male")}</SelectItem>
+                  <SelectItem value="female">{t("auth_female")}</SelectItem>
+                  <SelectItem value="non-binary">{t("auth_nonBinary")}</SelectItem>
                   <SelectItem value="prefer-not-to-say">
-                    Prefer not to say
+                    {t("auth_preferNotToSay")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -104,24 +106,24 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
                 value={currentUser?.gender || ""}
                 className="mt-1"
                 readOnly
-                placeholder="No gender provided"
+                placeholder={t("profile_noGender")}
               />
             )}
           </div>
         </div>
         <div>
-          <label className="text-sm font-medium">Email</label>
+          <label className="text-sm font-medium">{t("profile_email")}</label>
           <Input
             value={currentUser?.email || ""}
             className="mt-1"
             readOnly
-            placeholder="No email provided"
+            placeholder={t("profile_noEmail")}
           />
         </div>
         {!isEditing ? (
           <Button onClick={handleEdit} className="w-full">
             <Edit className="h-4 w-4 mr-2" />
-            Edit Profile
+            {t("profile_edit")}
           </Button>
         ) : (
           <div className="flex gap-2">
@@ -131,7 +133,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
               disabled={isLoading}
             >
               <Check className="h-4 w-4 mr-2" />
-              {isLoading ? "Saving..." : "Confirm"}
+              {isLoading ? t("profile_saving") : t("profile_confirm")}
             </Button>
             <Button
               onClick={handleCancel}
@@ -140,7 +142,7 @@ export const ProfileSection: React.FC<ProfileSectionProps> = ({
               disabled={isLoading}
             >
               <X className="h-4 w-4 mr-2" />
-              Cancel
+              {t("profile_cancel")}
             </Button>
           </div>
         )}

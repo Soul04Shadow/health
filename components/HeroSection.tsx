@@ -1,16 +1,30 @@
 import { ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "@/hooks/useTranslation";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { languages } from "@/lib/languages";
+import { Input } from "@/components/ui/input";
 
 interface HeroSectionProps {
   onBeginJourney: () => void;
 }
 
 export default function Home({ onBeginJourney }: HeroSectionProps) {
+  const { t, setLanguage, language } = useTranslation();
   const [navbarBg, setNavbarBg] = useState("bg-transparent");
   const [navbarOpacity, setNavbarOpacity] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
+    setIsMounted(true);
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       const halfViewportHeight = window.innerHeight / 2;
@@ -88,6 +102,30 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
 
             {/* Navigation Links */}
             <div className="flex items-center gap-4 text-white/90 font-sans text-lg font-semibold drop-shadow-md">
+              {isMounted && (
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Language" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <Input
+                      placeholder="Search language..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="mb-2"
+                    />
+                    {languages
+                      .filter((lang) =>
+                        lang.name.toLowerCase().includes(searchTerm.toLowerCase())
+                      )
+                      .map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>
+                          {lang.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              )}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
@@ -100,7 +138,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
                 }}
                 className="hover:text-white transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/10"
               >
-                Our Mission
+                {t("hero_ourMission")}
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -114,7 +152,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
                 }}
                 className="hover:text-white transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/10"
               >
-                Resources
+                {t("hero_resources")}
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -128,7 +166,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
                 }}
                 className="hover:text-white transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/10"
               >
-                FAQ
+                {t("hero_faq")}
               </motion.button>
             </div>
           </div>
@@ -150,10 +188,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="font-serif text-white text-4xl lg:text-6xl font-bold tracking-tight mb-8 drop-shadow-2xl"
               >
-                Your AI-Powered Guide to{" "}
-                <em className="text-orange-500 drop-shadow-2xl">
-                  Mental Wellness
-                </em>
+                {t("hero_title")}
               </motion.h1>
 
               {/* Call to Action Button */}
@@ -167,7 +202,7 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
                 id="fancy"
                 className="btn-sweep group text-white font-sans font-semibold bg-orange-500 px-8 py-4 rounded-lg text-lg hover:shadow-2xl transition-all duration-300 shadow-xl drop-shadow-2xl"
               >
-                  Start Your Wellness Journey
+                  {t("hero_button")}
                
               </motion.button>
             </motion.div>
@@ -190,4 +225,4 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
       </div>
     </>
   );
-}                                                                                                                                                                                                              
+}

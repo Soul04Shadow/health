@@ -2,37 +2,34 @@ import { Compass, Lock, Sparkles, ShieldCheck, Wallet, Leaf, Plus, Minus, Mail }
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { useTranslation } from "@/hooks/useTranslation"
+
 export default function FAQ() {
+  const { t } = useTranslation()
     const faqs = [
       {
-        question: "What is youth mental wellness?",
-        answer:
-          "Youth mental wellness encompasses emotional, psychological, and social well-being during adolescence and young adulthood. It involves managing stress, building resilience, developing healthy relationships, and maintaining positive self-esteem.",
+        question: t("faq_q1"),
+        answer: t("faq_a1"),
       },
       {
-        question: "How can AI help with mental wellness?",
-        answer:
-          "AI can provide personalized support through chatbots for immediate advice, mood tracking apps, virtual therapy sessions, and predictive analytics to identify potential mental health concerns early. Our GenAI platform offers tailored recommendations and resources.",
+        question: t("faq_q2"),
+        answer: t("faq_a2"),
       },
       {
-        question: "Is my data safe and private?",
-        answer:
-          "Yes, we prioritize data privacy and security. All conversations are encrypted, and we comply with HIPAA and GDPR standards. Your personal information is never shared without consent, and you have full control over your data.",
+        question: t("faq_q3"),
+        answer: t("faq_a3"),
       },
       {
-        question: "How do I get started?",
-        answer:
-          "Simply create an account on our platform, complete a brief assessment, and start exploring personalized wellness plans. Our AI assistant will guide you through the process and connect you with appropriate resources and support.",
+        question: t("faq_q4"),
+        answer: t("faq_a4"),
       },
       {
-        question: "What age groups does CureZ support?",
-        answer:
-          "CureZ is designed for young people aged 13-25. Our content and AI recommendations are tailored to address the unique mental health challenges faced during adolescence and young adulthood.",
+        question: t("faq_q5"),
+        answer: t("faq_a5"),
       },
       {
-        question: "Can I access CureZ offline?",
-        answer:
-          "While our AI chat requires internet connectivity, you can access mood tracking, journaling, and many resources offline. Premium features like real-time AI conversations require an internet connection.",
+        question: t("faq_q6"),
+        answer: t("faq_a6"),
       },
     ]
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -56,11 +53,10 @@ export default function FAQ() {
                 viewport={{ once: true }}
               >
                 <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6 text-balance text-foreground">
-                  Frequently Asked Questions
+                  {t("faq_title")}
                 </h2>
                 <p className="text-xl text-muted-foreground leading-relaxed text-pretty">
-                  Everything you need to know about CureZ, from AI-powered support to getting started on
-                  your mental wellness journey.
+                  {t("faq_description")}
                 </p>
               </motion.div>
 

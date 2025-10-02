@@ -26,6 +26,7 @@ import {
   Activity,
 } from "lucide-react";
 import { User, DashboardPage, ViewType, MoodData, Exercise } from "../lib/types";
+import { useTranslation } from "@/hooks/useTranslation";
 import tips from "../lib/health-tips.json";
 import positiveTips from "../lib/positive-tips.json";
 import allExercises from "../lib/exercises.json";
@@ -66,6 +67,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   setCurrentView,
   onUserUpdate,
 }) => {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState("");
   const [editedAge, setEditedAge] = useState("");
@@ -111,7 +113,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     // Validate that we have actual values to save
     if (!editedName.trim() && !editedAge.trim() && !editedGender.trim()) {
-      alert("Please fill in at least one field before saving.");
+      alert(t("dashboard_fillFields"));
       return;
     }
 
@@ -155,15 +157,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
           onUserUpdate(updatedUser);
         }
 
-        alert("Profile updated successfully!");
+        alert(t("dashboard_profileUpdated"));
         setIsEditing(false);
       } else {
         const error = await response.json();
-        alert(error.error || "Failed to update profile");
+        alert(error.error || t("dashboard_profileUpdateFailed"));
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile. Please try again.");
+      alert(t("dashboard_profileUpdateFailedRetry"));
     } finally {
       setIsLoading(false);
     }

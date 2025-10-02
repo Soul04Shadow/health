@@ -1,8 +1,10 @@
 import { Brain, ShieldCheck, MessageCircle, TrendingUp, Heart, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
+import { useTranslation } from "@/hooks/useTranslation"
 
 export default function Content() {
+  const { t } = useTranslation()
     return(
         <div>
         {/* Features Section */}
@@ -15,9 +17,9 @@ export default function Content() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">Why Choose CureZ?</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">{t("content_whyChoose")}</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Experience the future of mental wellness with our AI-powered platform designed specifically for young people.
+              {t("content_experience")}
             </p>
           </motion.div>
 
@@ -38,8 +40,8 @@ export default function Content() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-6 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-300">
                 <Brain className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">AI-Powered Insights</h3>
-              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">Get personalized mental health insights powered by advanced AI algorithms.</p>
+              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_aiInsights")}</h3>
+              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">{t("content_aiInsightsDesc")}</p>
             </motion.div>
 
             {/* 24/7 Support */}
@@ -58,8 +60,8 @@ export default function Content() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-6 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-300">
                 <MessageCircle className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">24/7 Support</h3>
-              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">Access round-the-clock AI chat support whenever you need guidance.</p>
+              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_247Support")}</h3>
+              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">{t("content_247SupportDesc")}</p>
             </motion.div>
 
             {/* Privacy & Security */}
@@ -78,8 +80,8 @@ export default function Content() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-6 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-300">
                 <ShieldCheck className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">Privacy & Security</h3>
-              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">Your data is protected with enterprise-grade security and privacy measures.</p>
+              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_privacy")}</h3>
+              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">{t("content_privacyDesc")}</p>
             </motion.div>
 
             {/* Mood Tracking */}
@@ -98,8 +100,8 @@ export default function Content() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-6 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-300">
                 <TrendingUp className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">Mood Tracking</h3>
-              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">Monitor your emotional well-being with intuitive tracking tools.</p>
+              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_healthTracking")}</h3>
+              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">{t("content_healthTrackingDesc")}</p>
             </motion.div>
 
             {/* Personalized Care */}
@@ -118,8 +120,8 @@ export default function Content() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-6 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-300">
                 <Heart className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">Personalized Care</h3>
-              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">Receive tailored recommendations based on your unique needs and goals.</p>
+              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_personalizedCare")}</h3>
+              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">{t("content_personalizedCareDesc")}</p>
             </motion.div>
 
             {/* Community Support */}
@@ -138,8 +140,8 @@ export default function Content() {
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-primary/10 mb-6 group-hover:bg-primary/15 group-hover:scale-110 transition-all duration-300">
                 <Users className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300" />
               </div>
-              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">Community Support</h3>
-              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">Connect with peers and access moderated community resources.</p>
+              <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_doctorSupport")}</h3>
+              <p className="text-muted-foreground leading-relaxed group-hover:text-foreground transition-colors duration-300">{t("content_doctorSupportDesc")}</p>
             </motion.div>
           </div>
         </div>
@@ -157,9 +159,9 @@ export default function Content() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 text-balance">Your Wellness Journey</h2>
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 text-balance">{t("content_wellnessJourney")}</h2>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-pretty">
-                From self-discovery to lasting well-being, here's how CureZ supports your mental health journey.
+                {t("content_wellnessJourneyDesc")}
               </p>
             </motion.div>
 
@@ -180,10 +182,9 @@ export default function Content() {
               >
                 <div className="flex-1">
                   <div className="text-3xl font-bold text-primary mb-4 group-hover:scale-110 group-hover:text-primary/90 transition-all duration-300">01.</div>
-                  <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">Initial Assessment</h3>
+                  <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_initialAssessment")}</h3>
                   <p className="text-muted-foreground leading-relaxed text-sm group-hover:text-foreground transition-colors duration-300">
-                    Start with our comprehensive wellness assessment to understand your current mental health status
-                    and identify areas for growth.
+                    {t("content_initialAssessmentDesc")}
                   </p>
                 </div>
               </motion.div>
@@ -203,10 +204,9 @@ export default function Content() {
               >
                 <div className="flex-1">
                   <div className="text-3xl font-bold text-primary mb-4 group-hover:scale-110 group-hover:text-primary/90 transition-all duration-300">02.</div>
-                  <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">Personalized Plan</h3>
+                  <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_personalizedPlan")}</h3>
                   <p className="text-muted-foreground leading-relaxed text-sm group-hover:text-foreground transition-colors duration-300">
-                    Receive a customized wellness plan with daily activities, coping strategies, and AI-powered
-                    recommendations tailored to your needs.
+                    {t("content_personalizedPlanDesc")}
                   </p>
                 </div>
               </motion.div>
@@ -226,10 +226,9 @@ export default function Content() {
               >
                 <div className="flex-1">
                   <div className="text-3xl font-bold text-primary mb-4 group-hover:scale-110 group-hover:text-primary/90 transition-all duration-300">03.</div>
-                  <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">Daily Support</h3>
+                  <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_dailySupport")}</h3>
                   <p className="text-muted-foreground leading-relaxed text-sm group-hover:text-foreground transition-colors duration-300">
-                    Access 24/7 AI chat support, mood tracking tools, and guided exercises to maintain your mental
-                    wellness throughout the day.
+                    {t("content_dailySupportDesc")}
                   </p>
                 </div>
               </motion.div>
@@ -249,10 +248,9 @@ export default function Content() {
               >
                 <div className="flex-1">
                   <div className="text-3xl font-bold text-primary mb-4 group-hover:scale-110 group-hover:text-primary/90 transition-all duration-300">04.</div>
-                  <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">Growth & Community</h3>
+                  <h3 className="text-xl font-semibold mb-4 group-hover:text-primary transition-colors duration-300">{t("content_growthCommunity")}</h3>
                   <p className="text-muted-foreground leading-relaxed text-sm group-hover:text-foreground transition-colors duration-300">
-                    Connect with a supportive community, track your progress, and celebrate milestones on your journey
-                    to better mental health.
+                    {t("content_growthCommunityDesc")}
                   </p>
                 </div>
               </motion.div>

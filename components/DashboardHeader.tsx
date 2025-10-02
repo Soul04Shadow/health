@@ -1,4 +1,5 @@
 import { User, DashboardPage } from "../lib/types";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface DashboardHeaderProps {
   dashboardPage: DashboardPage;
@@ -6,31 +7,31 @@ interface DashboardHeaderProps {
   currentUser: User | null;
 }
 
-const getHeaderDetails = (page: DashboardPage, name: string) => {
+const getHeaderDetails = (page: DashboardPage, name: string, t: (key: string, params?: any) => string) => {
   switch (page) {
     case "home":
       return {
-        title: `Welcome back, ${name}`,
+        title: t("header_welcome", { name }),
         // description: "Here's your wellness overview.",
       };
     case "sessions":
       return {
-        title: "AI Guide Session",
+        title: t("header_session"),
         // description: "Connect with your AI mentor for personalized support and guidance.",
       };
     case "resources":
       return {
-        title: "Wellness Resources",
+        title: t("header_resources"),
         // description: "Explore exercises and tips to support your mental well-being.",
       };
     case "profile":
       return {
-        title: "Profile Settings",
+        title: t("header_profile"),
         // description: "Manage your personal information.",
       };
     default:
       return {
-        title: "Dashboard",
+        title: t("header_dashboard"),
         description: "",
       };
   }
@@ -41,9 +42,11 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   currentUserName,
   currentUser,
 }) => {
+  const { t, setLanguage, language } = useTranslation();
   const headerDetails = getHeaderDetails(
     dashboardPage,
-    currentUserName || currentUser?.email?.split("@")[0] || "User"
+    currentUserName || currentUser?.email?.split("@")[0] || "User",
+    t
   );
 
   return (
