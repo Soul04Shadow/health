@@ -88,7 +88,7 @@ export const signup = async (formData: SignupFormData): Promise<FirebaseUser> =>
 
     await syncDoctorProfile(doctor);
 
-    window.location.href = "/doctor/onboarding";
+    window.location.href = `/doctor/onboarding?id=${firebaseUser.uid}`;
 
     return firebaseUser;
   } catch (error: any) {

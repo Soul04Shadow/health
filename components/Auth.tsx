@@ -73,6 +73,11 @@ export const Auth: React.FC<AuthProps> = ({
       <div id="recaptcha-container" />
       <Card className="w-full max-w-md shadow-xl border-0 bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center space-y-4">
+          <div className="absolute top-4 left-4">
+            <Link href="/">
+              <Button variant="ghost">Home</Button>
+            </Link>
+          </div>
           <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto shadow-lg">
             <MessageCircle className="h-10 w-10 text-primary-foreground" />
           </div>

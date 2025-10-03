@@ -1,14 +1,27 @@
+"use client";
+import { useState } from "react";
+import { DoctorDashboard } from "@/components/doctor/DoctorDashboard";
+import { useDoctorAuth } from "@/hooks/useDoctorAuth";
+import { DashboardPage, ViewType } from "@/lib/types";
+import { Doctor } from "@/lib/types";
+
 export default function DoctorDashboardPage() {
+  const { currentDoctor, handleLogout: doctorLogout } = useDoctorAuth();
+  const [dashboardPage, setDashboardPage] = useState<DashboardPage>("home");
+  const [currentView, setCurrentView] = useState<ViewType>("dashboard");
+
+  const handleLogout = () => {
+    doctorLogout();
+    window.location.href = "/doctor/login";
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold">Doctor Dashboard</h1>
-          <p className="mt-2 text-gray-500">
-            Welcome to your dashboard
-          </p>
-        </div>
-      </div>
-    </div>
-  )
+    <DoctorDashboard
+      currentDoctor={currentDoctor}
+      handleLogout={handleLogout}
+      dashboardPage={dashboardPage}
+      setDashboardPage={setDashboardPage}
+      setCurrentView={setCurrentView}
+    />
+  );
 }

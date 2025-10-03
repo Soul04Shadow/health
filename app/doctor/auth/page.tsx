@@ -15,6 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { signup, login } from "@/lib/doctor-auth"
 import { useRouter } from "next/navigation"
 import { MessageCircle } from "lucide-react"
+import Link from "next/link"
 
 export default function DoctorAuthPage() {
   const [authMode, setAuthMode] = useState("login")
@@ -49,6 +50,11 @@ export default function DoctorAuthPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-xl border-0 bg-card/80 backdrop-blur-sm">
         <CardHeader className="text-center space-y-4">
+          <div className="absolute top-4 left-4">
+            <Link href="/">
+              <Button variant="ghost">Home</Button>
+            </Link>
+          </div>
           <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto shadow-lg">
             <MessageCircle className="h-10 w-10 text-primary-foreground" />
           </div>

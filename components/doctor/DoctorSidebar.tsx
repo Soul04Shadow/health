@@ -3,24 +3,24 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Home,
-  MessageCircle,
-  BookOpen,
+  Users,
+  Calendar,
   User as UserIcon,
   LogOut,
   Menu,
   ChevronLeft,
 } from "lucide-react";
-import { DashboardPage } from "../lib/types";
+import { DashboardPage } from "../../lib/types";
 import { useTranslation } from "@/hooks/useTranslation";
 
-interface SidebarProps {
+interface DoctorSidebarProps {
   dashboardPage: DashboardPage;
   setDashboardPage: (page: DashboardPage) => void;
   handleLogout: () => void;
   onNavigateToLanding?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({
+export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({
   dashboardPage,
   setDashboardPage,
   handleLogout,
@@ -32,8 +32,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const navItems = [
     { id: "home", label: t("sidebar_home"), icon: Home },
-    { id: "sessions", label: t("sidebar_aiSession"), icon: MessageCircle },
-    { id: "resources", label: t("sidebar_resources"), icon: BookOpen },
+    { id: "patients", label: t("sidebar_patients"), icon: Users },
+    { id: "appointments", label: t("sidebar_appointments"), icon: Calendar },
     { id: "profile", label: t("sidebar_profile"), icon: UserIcon },
   ];
 
@@ -44,7 +44,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center cursor-pointer hover:scale-105 transition-transform"
           onClick={onNavigateToLanding}
         >
-          <MessageCircle className="h-7 w-7 text-primary-foreground" />
+          <Users className="h-7 w-7 text-primary-foreground" />
         </div>
         {!isCollapsed && (
           <div>
@@ -52,7 +52,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               className="text-2xl font-bold text-foreground cursor-pointer hover:text-primary transition-colors"
               onClick={onNavigateToLanding}
             >
-              {t("sidebar_cureZ")}
+              {t("sidebar_cureZ_doctor")}
             </h1>
           </div>
         )}
