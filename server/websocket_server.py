@@ -2,6 +2,7 @@ import asyncio
 import json
 import base64
 import logging
+import re
 import websockets
 import traceback
 import requests
@@ -13,6 +14,49 @@ from utils import extract_json, validate_mood_scores, pick_summarizer_model
 from rag import retrieve_mental_health_resources
 
 logger = logging.getLogger(__name__)
+
+def _extract_name_and_age_from_transcript(transcript):
+    name = None
+    age = None
+
+    for message in transcript:
+        if message.get("role") != "user":
+            continue
+
+        text = message.get("text", "")
+        if not text:
+            continue
+
+        if not name:
+            name_match = re.search(
+                r"\b(?:my\s+name\s+is|i'm\s+called|call\s+me)\s+([A-Za-z][A-Za-z\s'.-]{1,40})",
+                text,
+                re.IGNORECASE,
+            )
+            if name_match:
+                candidate = name_match.group(1).strip()
+                if candidate:
+                    name = candidate.title()
+
+        if age is None:
+            age_match = re.search(
+                r"\b(?:i am|i'm|my\s+age\s+is|age\s+is|i\s*am\s*)(\d{1,3})(?:\s*(?:years?\s*old|yrs?\s*old|yo))?\b",
+                text,
+                re.IGNORECASE,
+            )
+            if age_match:
+                try:
+                    candidate_age = int(age_match.group(1))
+                except ValueError:
+                    candidate_age = None
+                if candidate_age and 0 < candidate_age < 130:
+                    age = candidate_age
+
+        if name and age is not None:
+            break
+
+    return name, age
+
 
 class LiveAPIWebSocketServer:
     """WebSocket server implementation using Gemini LiveAPI directly."""
@@ -71,82 +115,97 @@ class LiveAPIWebSocketServer:
         """
         Generates a dynamic system instruction based on user data from the database.
         """
-        if not uid:
-            logger.warning("No UID provided, using default system instruction.")
-            return SYSTEM_INSTRUCTION
 
-        try:
-            # 1. Fetch user data from the Node.js server
-            response = requests.get(f"http://localhost:3000/user/{uid}")
-            if response.status_code != 200:
-                logger.error(f"Failed to fetch user data for UID {uid}. Status: {response.status_code}")
-                return SYSTEM_INSTRUCTION
+        needs_name = True
+        needs_age = True
+        user_name = "there"
+        latest_summary = {}
 
-            user_data = response.json()
-            user_name = user_data.get("name", "there")
-            latest_summary = user_data.get("latestSummary", {}).get("summary_data", {})
+        if uid:
+            try:
+                # 1. Fetch user data from the Node.js server
+                response = requests.get(f"http://localhost:3000/user/{uid}")
+                if response.status_code == 200:
+                    user_data = response.json()
+                    user_name = user_data.get("name") or "there"
+                    latest_summary = user_data.get("latestSummary", {}).get("summary_data", {})
+                    needs_name = not bool(user_data.get("name"))
+                    age_value = user_data.get("age")
+                    needs_age = age_value is None or str(age_value).strip() == ""
+                else:
+                    logger.error(f"Failed to fetch user data for UID {uid}. Status: {response.status_code}")
+            except requests.exceptions.RequestException as e:
+                logger.error(f"RequestException when fetching user data: {e}")
+        else:
+            logger.warning("No UID provided, will prompt user for name and age.")
 
-            # 2. Generate questions using Gemini based on the summary
-            generated_questions = ""
-            if latest_summary:
-                question_prompt = (
-                    "Based on the following summary of a user's previous session, "
-                    "generate 2-3 thoughtful, open-ended follow-up questions to help them continue exploring their feelings. "
-                    "The questions should be gentle, encouraging, and in line with the persona of a supportive mentor. "
-                    "Frame them as natural conversation starters.\n\n"
-                    f"PREVIOUS SUMMARY:\n{json.dumps(latest_summary, indent=2)}\n\n"
-                    "QUESTIONS:"
-                )
-                
-                try:
-                    question_model = pick_summarizer_model(MODEL)
-                    question_response = await client.aio.models.generate_content(
-                        model=question_model,
-                        contents=[question_prompt],
-                        config=types.GenerateContentConfig(temperature=0.7)
-                    )
-                    # Safely extract text from response
-                    if question_response and getattr(question_response, "candidates", None):
-                        for c in question_response.candidates:
-                            if getattr(c, "content", None) and getattr(c.content, "parts", None):
-                                for p in c.content.parts:
-                                    if getattr(p, "text", None):
-                                        generated_questions += p.text
-                    generated_questions = generated_questions.strip()
-                except Exception as e:
-                    logger.error(f"Error generating questions with Gemini: {e}")
-                    generated_questions = "How have you been feeling since we last talked?" # Fallback question
-
-            # 3. Construct the dynamic system instruction
-            greeting = f"Start the conversation by warmly welcoming the user back. Greet them by name: '{user_name}'."
-            
-            dynamic_instruction = (
-                f"{SYSTEM_INSTRUCTION}\n\n"
-                f"--- Conversation Context ---\n"
-                f"{greeting}\n"
+        # 2. Generate questions using Gemini based on the summary
+        generated_questions = ""
+        if latest_summary:
+            question_prompt = (
+                "Based on the following summary of a user's previous session, "
+                "generate 2-3 thoughtful, open-ended follow-up questions to help them continue exploring their feelings. "
+                "The questions should be gentle, encouraging, and in line with the persona of a supportive mentor. "
+                "Frame them as natural conversation starters.\n\n"
+                f"PREVIOUS SUMMARY:\n{json.dumps(latest_summary, indent=2)}\n\n"
+                "QUESTIONS:"
             )
 
-            if generated_questions:
-                dynamic_instruction += (
-                    "After the greeting, gently ask one of the following questions to help them open up, "
-                    "based on their previous conversation. Choose the one that feels most natural.\n"
-                    f"{generated_questions}\n"
+            try:
+                question_model = pick_summarizer_model(MODEL)
+                question_response = await client.aio.models.generate_content(
+                    model=question_model,
+                    contents=[question_prompt],
+                    config=types.GenerateContentConfig(temperature=0.7)
                 )
-            else:
-                 dynamic_instruction += "After the greeting, ask a general open-ended question like 'What's been on your mind lately?' or 'How have things been for you?'.\n"
+                # Safely extract text from response
+                if question_response and getattr(question_response, "candidates", None):
+                    for c in question_response.candidates:
+                        if getattr(c, "content", None) and getattr(c.content, "parts", None):
+                            for p in c.content.parts:
+                                if getattr(p, "text", None):
+                                    generated_questions += p.text
+                generated_questions = generated_questions.strip()
+            except Exception as e:
+                logger.error(f"Error generating questions with Gemini: {e}")
+                generated_questions = "How have you been feeling since we last talked?" # Fallback question
 
-            dynamic_instruction += "--------------------------"
-            
-            logger.info(f"Generated dynamic instruction for UID {uid}")
-            return dynamic_instruction
+        # 3. Construct the dynamic system instruction
+        greeting = f"Start the conversation by warmly welcoming the user back. Greet them by name: '{user_name}'."
 
-        except requests.exceptions.RequestException as e:
-            logger.error(f"RequestException when fetching user data: {e}")
-            return SYSTEM_INSTRUCTION
-        except Exception as e:
-            logger.error(f"An unexpected error occurred in generate_dynamic_system_instruction: {e}")
-            logger.error(traceback.format_exc())
-            return SYSTEM_INSTRUCTION
+        dynamic_instruction = (
+            f"{SYSTEM_INSTRUCTION}\n\n"
+            f"--- Conversation Context ---\n"
+            f"{greeting}\n"
+        )
+
+        if generated_questions:
+            dynamic_instruction += (
+                "After the greeting, gently ask one of the following questions to help them open up, "
+                "based on their previous conversation. Choose the one that feels most natural.\n"
+                f"{generated_questions}\n"
+            )
+        else:
+            dynamic_instruction += "After the greeting, ask a general open-ended question like 'What's been on your mind lately?' or 'How have things been for you?'.\n"
+
+        if needs_name and needs_age:
+            dynamic_instruction += (
+                "Because we do not yet have the user's name or age, politely ask for both immediately after greeting them. "
+                "Let them know it helps personalize the guidance you provide.\n"
+            )
+        elif needs_name:
+            dynamic_instruction += (
+                "We do not have the user's name yet. After the greeting, gently ask what name they would like you to use.\n"
+            )
+        elif needs_age:
+            dynamic_instruction += (
+                "We are missing the user's age. After greeting them, respectfully ask for their age so recommendations stay age-appropriate.\n"
+            )
+
+        dynamic_instruction += "--------------------------"
+
+        logger.info(f"Generated dynamic instruction for UID {uid}")
+        return dynamic_instruction
 
     async def process_audio(self, websocket, client_id):
         # Store reference to client
@@ -414,20 +473,27 @@ class LiveAPIWebSocketServer:
             logger.info("No transcript found; skipping summary.")
             return None
 
-        # This part for extracting user name remains the same
-        user_name = None
-        for message in transcript:
-            if message.get("role") == "user":
-                text = message.get("text", "").lower()
-                if "my name is" in text:
-                    user_name = text.split("my name is")[-1].strip().title()
-                    break
-        
+        user_name, extracted_age = _extract_name_and_age_from_transcript(transcript)
+
         if user_name:
             try:
-                requests.post("http://localhost:3000/save-name", json={"uid": uid, "name": user_name})
+                requests.post(
+                    "http://localhost:3000/save-name",
+                    json={"uid": uid, "name": user_name},
+                    timeout=5,
+                )
             except requests.exceptions.RequestException as e:
                 logger.error(f"Error saving user name: {e}")
+
+        if extracted_age is not None:
+            try:
+                requests.post(
+                    "http://localhost:3000/update-profile",
+                    json={"uid": uid, "age": extracted_age},
+                    timeout=5,
+                )
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Error saving user age: {e}")
 
         # This part for fetching previous summary remains the same
         previous_summary = ""
