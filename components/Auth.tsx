@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/select";
 import { useEffect } from "react";
 import { MessageCircle } from "lucide-react";
+import Link from "next/link";
 import { AuthMode } from "../lib/types";
 import { useTranslation } from "@/hooks/useTranslation";
 import type { ConfirmationResult } from "firebase/auth";

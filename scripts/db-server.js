@@ -180,6 +180,51 @@ app.get("/user/:uid", async (req, res) => {
   }
 })
 
+app.post("/doctor/signup", async (req, res) => {
+  const { doctor_id, name, age, gender, email } = req.body
+
+  if (!doctor_id || !email) {
+    return res.status(400).send({ error: "Missing doctor_id or email." })
+  }
+
+  try {
+    const profileData = {
+      name,
+      age,
+      gender,
+      email,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }
+
+    await db.collection("doctors").doc(doctor_id).set(profileData, { merge: true })
+
+    res.status(200).send({ doctor_id })
+  } catch (error) {
+    res.status(500).send({ error: error.message })
+  }
+})
+
+app.post("/doctor/onboarding", async (req, res) => {
+  const { doctor_id, ...data } = req.body
+
+  if (!doctor_id) {
+    return res.status(400).send({ error: "Missing doctor_id." })
+  }
+
+  try {
+    const profileData = {
+      ...data,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }
+
+    await db.collection("doctors").doc(doctor_id).set(profileData, { merge: true })
+
+    res.status(200).send({ doctor_id })
+  } catch (error) {
+    res.status(500).send({ error: error.message })
+  }
+})
+
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`)
 })

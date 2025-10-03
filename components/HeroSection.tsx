@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "@/hooks/useTranslation";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import Link from "next/link";
 
 interface HeroSectionProps {
   onBeginJourney: () => void;
@@ -135,6 +136,14 @@ export default function Home({ onBeginJourney }: HeroSectionProps) {
                 className="hover:text-white transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/10"
               >
                 {t("hero_faq")}
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="hover:text-white transition-all duration-300 px-4 py-2 rounded-lg hover:bg-white/10"
+              >
+                <Link href="/doctor/auth">For Doctors</Link>
               </motion.button>
             </div>
           </div>

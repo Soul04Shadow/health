@@ -64,3 +64,23 @@ export interface Exercise {
   expected_time_to_complete: string
   image: string
 }
+
+export interface Doctor {
+  doctor_id: string
+  name: string
+  gender: string
+  age: number
+  expertise: string
+  qualification: string
+  experience: number
+  languages: string[]
+  profile_photo: string
+  availability_time: string
+  medicalLicenseCertificate: string
+  clinicAddress: string
+  phoneNumber: string
+  email: string
+  preferredLanguages: string[]
+  averageRating: number
+  reviewStars: number[]
+}
